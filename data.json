@@ -1,0 +1,1000 @@
+{
+  "ingredients": [
+    {
+      "id": "ing_beef",
+      "code": "MEAT-001",
+      "name": "Говядина высший сорт",
+      "category": "MEAT_BASE",
+      "unit": "KG",
+      "price_per_unit": 850.0,
+      "kcal_per_100g": 250,
+      "proteins_per_100g": 18,
+      "fats_per_100g": 20,
+      "carbs_per_100g": 0,
+      "allergens": [],
+      "is_active": true,
+      "image": "🥩",
+      "suitable_for_children": true,
+      "meat_color": "#A52A2A",
+      "meat_color_light": "#C87070"
+    },
+    {
+      "id": "ing_pork",
+      "code": "MEAT-002",
+      "name": "Свинина",
+      "category": "MEAT_BASE",
+      "unit": "KG",
+      "price_per_unit": 550.0,
+      "kcal_per_100g": 280,
+      "proteins_per_100g": 16,
+      "fats_per_100g": 24,
+      "carbs_per_100g": 0,
+      "allergens": [],
+      "is_active": true,
+      "image": "🥓",
+      "suitable_for_children": true,
+      "meat_color": "#E8A0A0",
+      "meat_color_light": "#F5C5C5"
+    },
+    {
+      "id": "ing_turkey",
+      "code": "MEAT-003",
+      "name": "Индейка (филе)",
+      "category": "MEAT_BASE",
+      "unit": "KG",
+      "price_per_unit": 620.0,
+      "kcal_per_100g": 180,
+      "proteins_per_100g": 22,
+      "fats_per_100g": 10,
+      "carbs_per_100g": 0,
+      "allergens": [],
+      "is_active": true,
+      "image": "🦃",
+      "suitable_for_children": true,
+      "meat_color": "#D4A574",
+      "meat_color_light": "#E8C9A0"
+    },
+    {
+      "id": "ing_chicken",
+      "code": "MEAT-004",
+      "name": "Курица (бедро)",
+      "category": "MEAT_BASE",
+      "unit": "KG",
+      "price_per_unit": 380.0,
+      "kcal_per_100g": 210,
+      "proteins_per_100g": 19,
+      "fats_per_100g": 15,
+      "carbs_per_100g": 0,
+      "allergens": [],
+      "is_active": true,
+      "image": "🍗",
+      "suitable_for_children": true,
+      "meat_color": "#E8B888",
+      "meat_color_light": "#F5D0A8"
+    },
+    {
+      "id": "ing_cheese",
+      "code": "FILL-001",
+      "name": "Сыр Гауда",
+      "category": "FILLER",
+      "unit": "KG",
+      "price_per_unit": 900.0,
+      "kcal_per_100g": 350,
+      "proteins_per_100g": 25,
+      "fats_per_100g": 27,
+      "carbs_per_100g": 2,
+      "allergens": [
+        "MILK"
+      ],
+      "is_active": true,
+      "image": "🧀",
+      "suitable_for_children": true,
+      "filler_color": "#FFD700",
+      "filler_shape": "circle"
+    },
+    {
+      "id": "ing_olives",
+      "code": "FILL-002",
+      "name": "Оливки",
+      "category": "FILLER",
+      "unit": "KG",
+      "price_per_unit": 700.0,
+      "kcal_per_100g": 115,
+      "proteins_per_100g": 0.8,
+      "fats_per_100g": 10.7,
+      "carbs_per_100g": 6.3,
+      "allergens": [],
+      "is_active": true,
+      "image": "🫒",
+      "suitable_for_children": true,
+      "filler_color": "#3A4A2A",
+      "filler_shape": "oval"
+    },
+    {
+      "id": "ing_carrot",
+      "code": "FILL-004",
+      "name": "Морковь (соломка)",
+      "category": "FILLER",
+      "unit": "KG",
+      "price_per_unit": 150.0,
+      "kcal_per_100g": 41,
+      "proteins_per_100g": 0.9,
+      "fats_per_100g": 0.2,
+      "carbs_per_100g": 9.6,
+      "allergens": [],
+      "is_active": true,
+      "image": "🥕",
+      "suitable_for_children": true,
+      "filler_color": "#FF8C42",
+      "filler_shape": "stick"
+    },
+    {
+      "id": "ing_garlic",
+      "code": "SPICE-001",
+      "name": "Чеснок свежий",
+      "category": "SPICE",
+      "unit": "KG",
+      "price_per_unit": 300.0,
+      "kcal_per_100g": 149,
+      "proteins_per_100g": 6.4,
+      "fats_per_100g": 0.5,
+      "carbs_per_100g": 33,
+      "allergens": [],
+      "is_active": true,
+      "image": "🧄",
+      "suitable_for_children": false,
+      "is_spicy": true,
+      "filler_color": "#FFFFE0",
+      "filler_shape": "dot"
+    },
+    {
+      "id": "ing_paprika",
+      "code": "SPICE-002",
+      "name": "Паприка копчёная",
+      "category": "SPICE",
+      "unit": "KG",
+      "price_per_unit": 1200.0,
+      "kcal_per_100g": 282,
+      "proteins_per_100g": 14,
+      "fats_per_100g": 13,
+      "carbs_per_100g": 50,
+      "allergens": [],
+      "is_active": true,
+      "image": "🌶️",
+      "suitable_for_children": false,
+      "is_spicy": true,
+      "filler_color": "#C41E3A",
+      "filler_shape": "dot"
+    },
+    {
+      "id": "ing_pepper",
+      "code": "SPICE-004",
+      "name": "Перец чёрный горошек",
+      "category": "SPICE",
+      "unit": "KG",
+      "price_per_unit": 1500.0,
+      "kcal_per_100g": 255,
+      "proteins_per_100g": 10,
+      "fats_per_100g": 3,
+      "carbs_per_100g": 64,
+      "allergens": [],
+      "is_active": true,
+      "image": "⚫",
+      "suitable_for_children": false,
+      "is_spicy": true,
+      "filler_color": "#2C2C2C",
+      "filler_shape": "dot"
+    },
+    {
+      "id": "ing_herbs",
+      "code": "SPICE-003",
+      "name": "Прованские травы",
+      "category": "SPICE",
+      "unit": "KG",
+      "price_per_unit": 1800.0,
+      "kcal_per_100g": 250,
+      "proteins_per_100g": 10,
+      "fats_per_100g": 7,
+      "carbs_per_100g": 40,
+      "allergens": [],
+      "is_active": true,
+      "image": "🌿",
+      "suitable_for_children": true,
+      "filler_color": "#6B8E23",
+      "filler_shape": "dot"
+    },
+    {
+      "id": "ing_walnut",
+      "code": "FILL-003",
+      "name": "Грецкий орех",
+      "category": "FILLER",
+      "unit": "KG",
+      "price_per_unit": 1500.0,
+      "kcal_per_100g": 654,
+      "proteins_per_100g": 15,
+      "fats_per_100g": 65,
+      "carbs_per_100g": 14,
+      "allergens": [
+        "NUTS"
+      ],
+      "is_active": true,
+      "image": "🌰",
+      "suitable_for_children": false,
+      "filler_color": "#8B6F47",
+      "filler_shape": "chunk"
+    },
+    {
+      "id": "ing_natural_casing",
+      "code": "SHELL-001",
+      "name": "Натуральная оболочка",
+      "category": "SHELL",
+      "unit": "KG",
+      "price_per_unit": 2000.0,
+      "kcal_per_100g": 0,
+      "proteins_per_100g": 0,
+      "fats_per_100g": 0,
+      "carbs_per_100g": 0,
+      "allergens": [],
+      "is_active": true,
+      "image": "🫘",
+      "suitable_for_children": true,
+      "casing_color": "#C8956D",
+      "casing_type": "natural"
+    },
+    {
+      "id": "ing_collagen_casing",
+      "code": "SHELL-002",
+      "name": "Коллагеновая оболочка",
+      "category": "SHELL",
+      "unit": "KG",
+      "price_per_unit": 800.0,
+      "kcal_per_100g": 0,
+      "proteins_per_100g": 0,
+      "fats_per_100g": 0,
+      "carbs_per_100g": 0,
+      "allergens": [],
+      "is_active": true,
+      "image": "🔴",
+      "suitable_for_children": true,
+      "casing_color": "#B85450",
+      "casing_type": "collagen"
+    },
+    {
+      "id": "ing_smoked_casing",
+      "code": "SHELL-003",
+      "name": "Копчёная оболочка",
+      "category": "SHELL",
+      "unit": "KG",
+      "price_per_unit": 1500.0,
+      "kcal_per_100g": 0,
+      "proteins_per_100g": 0,
+      "fats_per_100g": 0,
+      "carbs_per_100g": 0,
+      "allergens": [],
+      "is_active": true,
+      "image": "🟤",
+      "suitable_for_children": true,
+      "casing_color": "#6B4423",
+      "casing_type": "smoked"
+    }
+  ],
+  "compatibility_rules": [
+    {
+      "ingredient_a_id": "ing_walnut",
+      "ingredient_b_id": "ing_garlic",
+      "rule_type": "WARNING",
+      "reason": "Орехи и чеснок могут перебивать вкус друг друга"
+    },
+    {
+      "ingredient_a_id": "ing_olives",
+      "ingredient_b_id": "ing_paprika",
+      "rule_type": "ALLOWED",
+      "reason": "Отличное средиземноморское сочетание"
+    }
+  ],
+  "configurator_options": [
+    {
+      "id": "opt_meat",
+      "name": "Основа (мясо)",
+      "step_order": 1,
+      "is_required": true,
+      "min_selections": 1,
+      "max_selections": 1,
+      "categories": [
+        "MEAT_BASE"
+      ],
+      "default_percentage": 85
+    },
+    {
+      "id": "opt_shell",
+      "name": "Оболочка",
+      "step_order": 2,
+      "is_required": true,
+      "min_selections": 1,
+      "max_selections": 1,
+      "categories": [
+        "SHELL"
+      ],
+      "default_percentage": 2
+    },
+    {
+      "id": "opt_filler",
+      "name": "Наполнители",
+      "step_order": 3,
+      "is_required": false,
+      "min_selections": 0,
+      "max_selections": 3,
+      "categories": [
+        "FILLER"
+      ],
+      "default_percentage": 10
+    },
+    {
+      "id": "opt_spice",
+      "name": "Специи",
+      "step_order": 4,
+      "is_required": false,
+      "min_selections": 0,
+      "max_selections": 3,
+      "categories": [
+        "SPICE"
+      ],
+      "default_percentage": 3
+    }
+  ],
+  "raw_material_batches": [
+    {
+      "id": "batch_001",
+      "ingredient_id": "ing_beef",
+      "batch_number": "B-2026-1101",
+      "received_at": "2026-11-01T08:00:00",
+      "expiration_date": "2026-11-10",
+      "initial_quantity": 50.0,
+      "current_quantity": 45.5,
+      "reserved_quantity": 6.2,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_002",
+      "ingredient_id": "ing_pork",
+      "batch_number": "B-2026-1102",
+      "received_at": "2026-11-02T08:00:00",
+      "expiration_date": "2026-11-09",
+      "initial_quantity": 40.0,
+      "current_quantity": 38.0,
+      "reserved_quantity": 3.7,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_003",
+      "ingredient_id": "ing_turkey",
+      "batch_number": "B-2026-1103",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2026-11-11",
+      "initial_quantity": 30.0,
+      "current_quantity": 30.0,
+      "reserved_quantity": 1.487,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_004",
+      "ingredient_id": "ing_chicken",
+      "batch_number": "B-2026-1104",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2026-11-12",
+      "initial_quantity": 35.0,
+      "current_quantity": 35.0,
+      "reserved_quantity": 3.187,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_005",
+      "ingredient_id": "ing_cheese",
+      "batch_number": "B-2026-1105",
+      "received_at": "2026-11-01T08:00:00",
+      "expiration_date": "2026-11-20",
+      "initial_quantity": 10.0,
+      "current_quantity": 9.5,
+      "reserved_quantity": 1.1,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_006",
+      "ingredient_id": "ing_olives",
+      "batch_number": "B-2026-1106",
+      "received_at": "2026-11-02T08:00:00",
+      "expiration_date": "2026-12-15",
+      "initial_quantity": 5.0,
+      "current_quantity": 5.0,
+      "reserved_quantity": 0.2,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_007",
+      "ingredient_id": "ing_garlic",
+      "batch_number": "B-2026-1107",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2026-11-25",
+      "initial_quantity": 3.0,
+      "current_quantity": 3.0,
+      "reserved_quantity": 0.03,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_008",
+      "ingredient_id": "ing_paprika",
+      "batch_number": "B-2026-1108",
+      "received_at": "2026-11-01T08:00:00",
+      "expiration_date": "2027-05-01",
+      "initial_quantity": 2.0,
+      "current_quantity": 2.0,
+      "reserved_quantity": 0.12,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_009",
+      "ingredient_id": "ing_walnut",
+      "batch_number": "B-2026-1109",
+      "received_at": "2026-11-02T08:00:00",
+      "expiration_date": "2027-02-01",
+      "initial_quantity": 4.0,
+      "current_quantity": 4.0,
+      "reserved_quantity": 0.0,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_010",
+      "ingredient_id": "ing_natural_casing",
+      "batch_number": "B-2026-1110",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2026-12-01",
+      "initial_quantity": 15.0,
+      "current_quantity": 15.0,
+      "reserved_quantity": 0.14,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_011",
+      "ingredient_id": "ing_collagen_casing",
+      "batch_number": "B-2026-1111",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2027-06-01",
+      "initial_quantity": 20.0,
+      "current_quantity": 20.0,
+      "reserved_quantity": 0.0,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_012",
+      "ingredient_id": "ing_herbs",
+      "batch_number": "B-2026-1112",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2027-03-01",
+      "initial_quantity": 1.5,
+      "current_quantity": 1.5,
+      "reserved_quantity": 0.12,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_013",
+      "ingredient_id": "ing_carrot",
+      "batch_number": "B-2026-1113",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2026-11-15",
+      "initial_quantity": 8.0,
+      "current_quantity": 8.0,
+      "reserved_quantity": 0.15,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_014",
+      "ingredient_id": "ing_pepper",
+      "batch_number": "B-2026-1114",
+      "received_at": "2026-11-01T08:00:00",
+      "expiration_date": "2027-11-01",
+      "initial_quantity": 1.0,
+      "current_quantity": 1.0,
+      "reserved_quantity": 0.015,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    },
+    {
+      "id": "batch_015",
+      "ingredient_id": "ing_smoked_casing",
+      "batch_number": "B-2026-1115",
+      "received_at": "2026-11-03T08:00:00",
+      "expiration_date": "2027-06-01",
+      "initial_quantity": 10.0,
+      "current_quantity": 10.0,
+      "reserved_quantity": 0.05,
+      "unit": "KG",
+      "status": "AVAILABLE"
+    }
+  ],
+  "delivery_slots": [
+    {
+      "id": "slot_001",
+      "slot_date": "2026-11-13",
+      "time_from": "10:00",
+      "time_to": "13:00",
+      "max_orders": 15,
+      "current_orders": 3,
+      "is_custom_available": true
+    },
+    {
+      "id": "slot_002",
+      "slot_date": "2026-11-13",
+      "time_from": "13:00",
+      "time_to": "16:00",
+      "max_orders": 15,
+      "current_orders": 9,
+      "is_custom_available": true
+    },
+    {
+      "id": "slot_003",
+      "slot_date": "2026-11-13",
+      "time_from": "16:00",
+      "time_to": "19:00",
+      "max_orders": 15,
+      "current_orders": 14,
+      "is_custom_available": true
+    },
+    {
+      "id": "slot_004",
+      "slot_date": "2026-11-14",
+      "time_from": "10:00",
+      "time_to": "13:00",
+      "max_orders": 15,
+      "current_orders": 1,
+      "is_custom_available": true
+    },
+    {
+      "id": "slot_005",
+      "slot_date": "2026-11-14",
+      "time_from": "13:00",
+      "time_to": "16:00",
+      "max_orders": 15,
+      "current_orders": 2,
+      "is_custom_available": true
+    },
+    {
+      "id": "slot_006",
+      "slot_date": "2026-11-14",
+      "time_from": "16:00",
+      "time_to": "19:00",
+      "max_orders": 15,
+      "current_orders": 5,
+      "is_custom_available": true
+    }
+  ],
+  "orders": [
+    {
+      "id": "16ad28d9-c22c-4ac9-be0f-959f63b5e0b1",
+      "order_number": "ORD-20261106-0001",
+      "user_id": "demo_user",
+      "status": "CONFIRMED",
+      "order_type": "CUSTOM",
+      "items": [
+        {
+          "item_id": "de3ebae0-32f4-4273-8ddd-12f89b453727",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_chicken",
+                "ing_turkey"
+              ],
+              "opt_filler": [
+                "ing_olives",
+                "ing_cheese",
+                "ing_carrot"
+              ],
+              "opt_spice": [
+                "ing_pepper",
+                "ing_paprika",
+                "ing_garlic"
+              ],
+              "opt_shell": [
+                "ing_smoked_casing"
+              ]
+            },
+            "weight": 1500,
+            "mode": "STANDARD"
+          },
+          "requested_weight_g": 1500,
+          "price_per_kg": 1249.67,
+          "line_total": 1874.5
+        }
+      ],
+      "custom_recipe_snapshot": {
+        "selections": {
+          "opt_meat": [
+            "ing_chicken",
+            "ing_turkey"
+          ],
+          "opt_filler": [
+            "ing_olives",
+            "ing_cheese",
+            "ing_carrot"
+          ],
+          "opt_spice": [
+            "ing_pepper",
+            "ing_paprika",
+            "ing_garlic"
+          ],
+          "opt_shell": [
+            "ing_smoked_casing"
+          ]
+        },
+        "weight": 1500,
+        "mode": "STANDARD"
+      },
+      "total_weight_g": 1500,
+      "total_amount": 1874.5,
+      "final_amount": null,
+      "delivery_slot_id": "slot_004",
+      "delivery_address": {
+        "street": "проспект Александровской Фермы",
+        "building": "0",
+        "apartment": "00"
+      },
+      "customer_comment": "",
+      "created_at": "2026-11-06T02:35:54.176544"
+    },
+    {
+      "id": "a792c9e7-ed3b-4c01-bdb1-abdd8f84cc1e",
+      "order_number": "ORD-20261109-0001",
+      "user_id": "demo_user",
+      "status": "CONFIRMED",
+      "order_type": "CUSTOM",
+      "items": [
+        {
+          "item_id": "5ef7450c-e1da-467a-8c7a-2d1f02d57ebd",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_beef"
+              ],
+              "opt_shell": [
+                "ing_natural_casing"
+              ],
+              "opt_filler": [
+                "ing_olives",
+                "ing_cheese"
+              ],
+              "opt_spice": [
+                "ing_paprika"
+              ]
+            },
+            "weight": 1000,
+            "mode": "STANDARD"
+          },
+          "requested_weight_g": 1000,
+          "price_per_kg": 2020.55,
+          "line_total": 2020.55
+        }
+      ],
+      "custom_recipe_snapshot": {
+        "selections": {
+          "opt_meat": [
+            "ing_beef"
+          ],
+          "opt_shell": [
+            "ing_natural_casing"
+          ],
+          "opt_filler": [
+            "ing_olives",
+            "ing_cheese"
+          ],
+          "opt_spice": [
+            "ing_paprika"
+          ]
+        },
+        "weight": 1000,
+        "mode": "STANDARD"
+      },
+      "total_weight_g": 1000,
+      "total_amount": 2020.55,
+      "final_amount": null,
+      "delivery_slot_id": "slot_002",
+      "delivery_address": {
+        "street": "проспект Александровской Фермы, 8",
+        "building": "8",
+        "apartment": "00"
+      },
+      "customer_comment": "",
+      "created_at": "2026-11-09T01:00:14.646594"
+    },
+    {
+      "id": "67c6f079-0c7a-43c8-b7dc-0ca0931801f2",
+      "order_number": "ORD-20261109-0002",
+      "user_id": "demo_user",
+      "status": "CONFIRMED",
+      "order_type": "CUSTOM",
+      "items": [
+        {
+          "item_id": "a9352410-8c88-4841-a7f3-cf29ed3d379e",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_pork"
+              ],
+              "opt_shell": [
+                "ing_smoked_casing"
+              ],
+              "opt_filler": [
+                "ing_carrot"
+              ],
+              "opt_spice": [
+                "ing_garlic",
+                "ing_paprika"
+              ]
+            },
+            "weight": 1000,
+            "mode": "STANDARD"
+          },
+          "requested_weight_g": 1000,
+          "price_per_kg": 1230.5,
+          "line_total": 1230.5
+        },
+        {
+          "item_id": "cdee6d5f-523b-41da-898f-3e1defc1dc67",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_beef"
+              ],
+              "opt_shell": [
+                "ing_natural_casing"
+              ],
+              "opt_filler": [
+                "ing_cheese",
+                "ing_olives"
+              ],
+              "opt_spice": [
+                "ing_paprika"
+              ]
+            },
+            "weight": 1000,
+            "mode": "STANDARD"
+          },
+          "requested_weight_g": 1000,
+          "price_per_kg": 2020.55,
+          "line_total": 2020.55
+        }
+      ],
+      "custom_recipe_snapshot": {
+        "selections": {
+          "opt_meat": [
+            "ing_pork"
+          ],
+          "opt_shell": [
+            "ing_smoked_casing"
+          ],
+          "opt_filler": [
+            "ing_carrot"
+          ],
+          "opt_spice": [
+            "ing_garlic",
+            "ing_paprika"
+          ]
+        },
+        "weight": 1000,
+        "mode": "STANDARD"
+      },
+      "total_weight_g": 2000,
+      "total_amount": 3251.05,
+      "final_amount": null,
+      "delivery_slot_id": "slot_003",
+      "delivery_address": {
+        "street": "проспект Александровской Фермы, 8",
+        "building": "8",
+        "apartment": "00"
+      },
+      "customer_comment": "",
+      "created_at": "2026-11-09T01:01:46.614393"
+    },
+    {
+      "id": "d467c3c9-44ce-4c7e-a5b1-f69f1cb88c6f",
+      "order_number": "ORD-20261109-0003",
+      "user_id": "demo_user",
+      "status": "CONFIRMED",
+      "order_type": "CUSTOM",
+      "items": [
+        {
+          "item_id": "63a7d642-cf48-4ed4-984b-f2635ffd518e",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_chicken"
+              ],
+              "opt_shell": [
+                "ing_natural_casing"
+              ],
+              "opt_filler": [
+                "ing_cheese"
+              ],
+              "opt_spice": [
+                "ing_herbs"
+              ]
+            },
+            "weight": 1000,
+            "mode": "STANDARD"
+          },
+          "requested_weight_g": 1000,
+          "price_per_kg": 1166.1,
+          "line_total": 1166.1
+        },
+        {
+          "item_id": "72a8cc78-37a5-4bad-8718-dc1197441b89",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_turkey"
+              ],
+              "opt_shell": [
+                "ing_natural_casing"
+              ],
+              "opt_filler": [
+                "ing_cheese"
+              ],
+              "opt_spice": [
+                "ing_herbs"
+              ]
+            },
+            "weight": 1000,
+            "mode": "CHILDREN"
+          },
+          "requested_weight_g": 1000,
+          "price_per_kg": 1635.3,
+          "line_total": 1635.3
+        }
+      ],
+      "custom_recipe_snapshot": {
+        "selections": {
+          "opt_meat": [
+            "ing_chicken"
+          ],
+          "opt_shell": [
+            "ing_natural_casing"
+          ],
+          "opt_filler": [
+            "ing_cheese"
+          ],
+          "opt_spice": [
+            "ing_herbs"
+          ]
+        },
+        "weight": 1000,
+        "mode": "STANDARD"
+      },
+      "total_weight_g": 2000,
+      "total_amount": 2801.3999999999996,
+      "final_amount": null,
+      "delivery_slot_id": "slot_002",
+      "delivery_address": {
+        "street": "проспект Александровской Фермы, 8",
+        "building": "8",
+        "apartment": "00"
+      },
+      "customer_comment": "",
+      "created_at": "2026-11-09T12:50:06.438936"
+    },
+    {
+      "id": "86d8bb03-7197-41ab-8160-abeebe1c8cb3",
+      "order_number": "ORD-20261109-0004",
+      "user_id": "demo_user",
+      "status": "CONFIRMED",
+      "order_type": "CUSTOM",
+      "items": [
+        {
+          "item_id": "3e8e10df-7cbf-4815-b135-8cc9da47f7ed",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_pork"
+              ],
+              "opt_shell": [
+                "ing_natural_casing"
+              ],
+              "opt_filler": [
+                "ing_olives",
+                "ing_cheese"
+              ],
+              "opt_spice": [
+                "ing_paprika"
+              ]
+            },
+            "weight": 1000,
+            "mode": "STANDARD"
+          },
+          "requested_weight_g": 1000,
+          "price_per_kg": 1434,
+          "line_total": 1434
+        },
+        {
+          "item_id": "71ec8a8b-eb01-4a88-ba9c-b2c0e77d4955",
+          "product_type": "CUSTOM",
+          "recipe_snapshot": {
+            "selections": {
+              "opt_meat": [
+                "ing_chicken"
+              ],
+              "opt_shell": [
+                "ing_natural_casing"
+              ],
+              "opt_filler": [
+                "ing_cheese"
+              ],
+              "opt_spice": [
+                "ing_herbs"
+              ]
+            },
+            "weight": 2000,
+            "mode": "CHILDREN"
+          },
+          "requested_weight_g": 2000,
+          "price_per_kg": 1166,
+          "line_total": 2332
+        }
+      ],
+      "custom_recipe_snapshot": {
+        "selections": {
+          "opt_meat": [
+            "ing_pork"
+          ],
+          "opt_shell": [
+            "ing_natural_casing"
+          ],
+          "opt_filler": [
+            "ing_olives",
+            "ing_cheese"
+          ],
+          "opt_spice": [
+            "ing_paprika"
+          ]
+        },
+        "weight": 1000,
+        "mode": "STANDARD"
+      },
+      "total_weight_g": 3000,
+      "total_amount": 3766,
+      "final_amount": null,
+      "delivery_slot_id": "slot_003",
+      "delivery_address": {
+        "street": "проспект Александровской Фермы, 8",
+        "building": "8",
+        "apartment": "00"
+      },
+      "customer_comment": "",
+      "created_at": "2026-11-09T15:11:06.071467"
+    }
+  ],
+  "saved_recipes": [],
+  "settings": {
+    "min_custom_weight_g": 1000,
+    "weight_step_g": 500,
+    "production_lead_time_hours": 24,
+    "labor_margin": 0.15,
+    "retail_margin": 2.0
+  }
+}

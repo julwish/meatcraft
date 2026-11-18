@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Колбасный Конструктор — AI Edition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #fff5e6 0%, #ffe4c4 100%);
+    min-height: 100vh; color: #2c1810;
+  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  header {
+    text-align: center; padding: 30px 20px;
+    background: linear-gradient(135deg, #8B0000, #c41e3a);
+    color: white; border-radius: 20px; margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(139, 0, 0, 0.3);
+  }
+  header h1 { font-size: 2.5em; margin-bottom: 10px; }
+  header p { opacity: 0.9; font-size: 1.1em; }
+  .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab {
+    padding: 12px 24px; background: white; border: 2px solid #c41e3a;
+    border-radius: 10px; cursor: pointer; font-weight: 600;
+    transition: all 0.2s; color: #c41e3a;
+  }
+  .tab:hover { background: #fff5f5; }
+  .tab.active { background: #c41e3a; color: white; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: white; border-radius: 15px; padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 20px;
+  }
+  .card h2 { color: #8B0000; margin-bottom: 15px; font-size: 1.4em; }
+  .card h3 { color: #c41e3a; margin: 15px 0 10px; font-size: 1.1em; }
+  .ingredient-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;
+  }
+  .ingredient {
+    border: 2px solid #e0d4c4; border-radius: 10px; padding: 12px;
+    cursor: pointer; transition: all 0.2s; background: #fffaf5; position: relative;
+  }
+  .ingredient:hover:not(.disabled) { border-color: #c41e3a; transform: translateY(-2px); }
+  .ingredient.selected { border-color: #8B0000; background: #fff0e6; box-shadow: 0 0 0 3px rgba(139,0,0,0.2); }
+  .ingredient.disabled { opacity: 0.35; cursor: not-allowed; background: #f0f0f0; }
+  .ingredient.disabled::after { content: "🚫"; position: absolute; top: 5px; right: 5px; font-size: 1.2em; }
+  .ingredient .emoji { font-size: 2em; display: block; margin-bottom: 5px; }
+  .ingredient .name { font-weight: 600; font-size: 0.95em; }
+  .ingredient .price { color: #666; font-size: 0.85em; margin-top: 3px; }
+  .ingredient .stock { font-size: 0.75em; color: #888; margin-top: 2px; }
+  .ingredient .badge {
+    position: absolute; top: 5px; right: 5px;
+    background: #8B0000; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.7em;
+  }
+  .ingredient .child-badge {
+    position: absolute; top: 5px; left: 5px;
+    background: #daa520; color: white; padding: 2px 6px; border-radius: 8px; font-size: 0.65em;
+  }
+  .weight-control {
+    display: flex; align-items: center; gap: 15px;
+    margin: 20px 0; padding: 15px; background: #fff5e6; border-radius: 10px;
+  }
+  .weight-control label { font-weight: 600; }
+  .weight-control input[type="range"] { flex: 1; }
+  .weight-control .value {
+    font-size: 1.5em; font-weight: 700; color: #8B0000;
+    min-width: 100px; text-align: right;
+  }
+  .visualizer {
+    text-align: center; padding: 20px 15px;
+    background: radial-gradient(ellipse at center top, #fff8e8 0%, #f5e6d0 70%, #e8d4b8 100%);
+    border-radius: 15px; margin: 0;
+    min-height: 280px;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    border: 2px solid #d4a574;
+    position: relative; overflow: hidden;
+  }
+  .visualizer-title {
+    font-size: 0.8em; color: #8B0000; margin-bottom: 10px;
+    font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    position: relative; z-index: 1;
+  }
+  .sausage-canvas-container {
+    width: 100%;
+    position: relative; z-index: 1;
+    background: #f5e6d0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  #sausage-canvas { width: 100%; height: auto; display: block; }
+  .visualizer-hint {
+    margin-top: 10px; color: #6B4423;
+    font-size: 0.8em; font-style: italic;
+    position: relative; z-index: 1;
+  }
+  .render-info {
+    font-size: 0.65em; color: #999; margin-top: 5px;
+    position: relative; z-index: 1;
+  }
+  .ai-status {
+    display: flex; gap: 6px; margin: 10px 0;
+    padding: 10px; background: #fff8e0;
+    border-radius: 10px; border: 1px solid #daa520;
+    flex-wrap: wrap; align-items: center;
+    justify-content: center;
+    display: none;
+  }
+  .ai-status-title {
+    font-weight: 600; color: #8B6914;
+    font-size: 0.8em; margin-right: 8px;
+  }
+  .ai-base-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 8px; border-radius: 12px;
+    font-size: 0.7em; background: #f0e0d0; color: #666;
+    transition: all 0.3s;
+  }
+  .ai-base-chip.loading { background: #fff4e0; color: #b8860b; animation: pulse 1.5s infinite; }
+  .ai-base-chip.ready { background: #d4edda; color: #155724; }
+  .ai-base-chip.cached { background: #cce5ff; color: #004085; }
+  .ai-base-chip.error { background: #ffe5e5; color: #c00; }
+  .ai-base-chip .spinner {
+    display: inline-block; width: 8px; height: 8px;
+    border: 2px solid #b8860b; border-top-color: transparent;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .ai-retry-btn, .ai-refresh-btn {
+    padding: 2px 6px; border: 1px solid #c00;
+    background: white; color: #c00;
+    border-radius: 8px; cursor: pointer;
+    font-size: 0.7em; margin-left: 2px;
+  }
+  .ai-refresh-btn {
+    border-color: #004085; color: #004085;
+  }
+  .ai-retry-btn:hover { background: #ffe5e5; }
+  .ai-refresh-btn:hover { background: #cce5ff; }
+  .mode-toggle-bar {
+    display: none; gap: 8px; margin: 10px 0 0 0;
+    padding: 8px; background: #fff5e6; border-radius: 10px;
+    align-items: center; flex-wrap: wrap;
+  }
+  .render-mode-btn {
+    padding: 6px 12px; border: 2px solid #e0d4c4;
+    background: white; border-radius: 8px;
+    cursor: pointer; font-size: 0.75em; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .render-mode-btn.active { border-color: #8B0000; background: #fff0e6; color: #8B0000; }
+  .render-mode-info { flex: 1; font-size: 0.7em; color: #666; font-style: italic; min-width: 150px; }
+  .summary { position: sticky; top: 20px; align-self: start; }
+  .summary-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px dashed #e0d4c4;
+  }
+  .summary-row.total {
+    font-size: 1.3em; font-weight: 700; color: #8B0000;
+    border-bottom: none; padding-top: 15px;
+  }
+  .nutrition {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 8px; margin: 15px 0;
+  }
+  .nutrition-item {
+    text-align: center; padding: 8px;
+    background: #fff5e6; border-radius: 8px;
+  }
+  .nutrition-item .value { font-size: 1.2em; font-weight: 700; color: #c41e3a; }
+  .nutrition-item .label { font-size: 0.7em; color: #666; }
+  .alerts { margin: 10px 0; }
+  .alert {
+    padding: 8px 12px; border-radius: 8px;
+    margin-bottom: 6px; font-size: 0.85em;
+  }
+  .alert.error { background: #ffe5e5; color: #c00; border-left: 4px solid #c00; }
+  .alert.warning { background: #fff4e0; color: #b8860b; border-left: 4px solid #daa520; }
+  .alert.success { background: #e5ffe5; color: #060; border-left: 4px solid #060; }
+  .btn {
+    padding: 12px 24px; border: none; border-radius: 10px;
+    font-weight: 600; font-size: 0.95em; cursor: pointer;
+    transition: all 0.2s; width: 100%; margin-top: 10px;
+  }
+  .btn-primary { background: #8B0000; color: white; }
+  .btn-primary:hover:not(:disabled) { background: #c41e3a; transform: translateY(-2px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: #e0d4c4; color: #2c1810; }
+  .btn-secondary:hover { background: #d0c4b4; }
+  .slots-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;
+  }
+  .slot {
+    border: 2px solid #e0d4c4; border-radius: 10px;
+    padding: 15px; cursor: pointer; text-align: center; transition: all 0.2s;
+  }
+  .slot:hover { border-color: #c41e3a; }
+  .slot.selected { border-color: #8B0000; background: #fff0e6; }
+  .slot .date { font-weight: 700; color: #8B0000; }
+  .slot .time { font-size: 1.1em; margin: 5px 0; }
+  .slot .capacity { font-size: 0.8em; color: #666; }
+  .order-card {
+    border: 2px solid #e0d4c4; border-radius: 10px;
+    padding: 15px; margin-bottom: 15px; background: #fffaf5;
+  }
+  .order-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 10px;
+  }
+  .order-number { font-weight: 700; color: #8B0000; font-size: 1.1em; }
+  .status-badge {
+    padding: 4px 10px; border-radius: 12px;
+    font-size: 0.8em; font-weight: 600;
+  }
+  .status-NEW { background: #e0e0ff; color: #00c; }
+  .status-CONFIRMED { background: #fff4e0; color: #b8860b; }
+  .status-IN_PRODUCTION { background: #ffe5e5; color: #c00; }
+  .status-ASSEMBLED { background: #e5ffe5; color: #060; }
+  .status-OUT_FOR_DELIVERY { background: #e0f5ff; color: #0088cc; }
+  .status-DELIVERED { background: #d4edda; color: #155724; }
+  .mode-toggle { display: flex; gap: 10px; margin-bottom: 15px; }
+  .mode-btn {
+    flex: 1; padding: 12px; border: 2px solid #e0d4c4; background: white;
+    border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s;
+  }
+  .reset-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #8B0000, #c41e3a);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.25);
+  width: 100%;
+  max-width: 300px;
+}
+.reset-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 0, 0, 0.35);
+}
+  .mode-btn.active { border-color: #8B0000; background: #fff0e6; color: #8B0000; }
+  .mode-btn.children-active { border-color: #daa520; background: #fff8e0; color: #b8860b; }
+  .empty { text-align: center; padding: 40px; color: #888; }
+  .info-banner {
+    padding: 10px 15px; background: #fff8e0;
+    border-left: 4px solid #daa520; border-radius: 8px;
+    margin-bottom: 15px; font-size: 0.9em; color: #8B6914;
+  }
+.recipe-generation-bar {
+  margin: 12px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.btn-generate-recipe {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #8B0000, #c41e3a);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.25);
+  width: 100%;
+  max-width: 300px;
+}
+.btn-generate-recipe:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 0, 0, 0.35);
+}
+.btn-generate-recipe:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-generate-recipe.generating {
+  background: linear-gradient(135deg, #666, #888);
+  animation: pulse 1.5s infinite;
+}
+.recipe-generation-status {
+  font-size: 0.8em;
+  color: #666;
+  text-align: center;
+  min-height: 20px;
+}
+.recipe-generation-status.success { color: #060; }
+.recipe-generation-status.error { color: #c00; }
+.recipe-generation-status.loading { color: #b8860b; }
+
+/* Индикатор прогресса генерации */
+.recipe-progress {
+  width: 100%;
+  max-width: 300px;
+  height: 6px;
+  background: #f0e0d0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+.recipe-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8B0000, #c41e3a);
+  width: 0%;
+  transition: width 0.5s ease;
+  animation: progress-indeterminate 1.5s infinite;
+}
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); width: 40%; }
+  50% { transform: translateX(150%); width: 60%; }
+  100% { transform: translateX(400%); width: 40%; }
+}
+
+/* Бейдж "AI-фото" на изображении */
+.recipe-ai-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(139, 0, 0, 0.85);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.7em;
+  font-weight: 600;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+.sausage-canvas-container {
+  position: relative; /* для абсолютного позиционирования бейджа */
+}
+/* ============================================
+   🏷️ ОВЕРЛЕЙ СО ЗНАЧКАМИ ИНГРЕДИЕНТОВ
+   ============================================ */
+.ingredient-badges-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(139, 0, 0, 0.2);
+  max-width: 90%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 10;
+}
+
+.ingredient-badges-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ingredient-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: white;
+  border: 1.5px solid rgba(139, 0, 0, 0.4);
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ingredient-badge:hover {
+  transform: scale(1.15);
+}
+
+.ingredient-badge-extra {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  background: #8B0000;
+  color: white;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1> MEATCRAFT</h1>
+    <p>Собери свой вкус</p>
+  </header>
+  <div class="tabs">
+    <div class="tab active" data-panel="configurator">Конструктор колбасы</div>
+    <div class="tab" data-panel="checkout">🛒 Оформление</div>
+    <div class="tab" data-panel="orders">📦 Мои заказы</div>
+  </div>
+  <div class="panel active" id="panel-configurator">
+    <div class="grid">
+      <!-- ЛЕВАЯ КОЛОНКА: только ингредиенты -->
+      <div>
+        <div class="card">
+          <h2>Выбери ингредиенты</h2>
+          <div class="mode-toggle">
+  <div class="mode-btn active" data-mode="STANDARD">👨‍👩‍👧 Стандарт</div>
+  <div class="mode-btn" data-mode="CHILDREN">👶 Детское питание</div>
+  <button class="reset-btn" id="reset-selection-btn" title="Сбросить выбор">
+    Сбросить выбор
+  </button>
+</div>
+          <div id="mode-info" class="info-banner" style="display:none;"></div>
+          <div id="options-container"></div>
+          <div class="weight-control">
+            <label>Вес:</label>
+            <input type="range" id="weight-slider" min="1000" max="5000" step="500" value="1000">
+            <div class="value"><span id="weight-value">1000</span> г</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ПРАВАЯ КОЛОНКА: превью + итог -->
+      <div class="summary">
+        <!-- Превью колбасы -->
+<div class="card">
+  <div class="visualizer">
+    <div class="visualizer-title">Ваша колбаса</div>
+    <div class="ai-status" id="ai-status">
+      <div class="ai-status-title">🎨 AI-базы:</div>
+      <div id="ai-status-chips"></div>
+    </div>
+    
+    <!-- Контейнер для превью: canvas ИЛИ AI-фото -->
+    <div class="sausage-canvas-container" id="sausage-canvas-container">
+  <canvas id="sausage-canvas" width="800" height="400"></canvas>
+  <img id="recipe-ai-image" style="display:none; width:100%; height:auto;" alt="AI-превью рецепта">
+  
+  <!-- 🆕 HTML-оверлей со значками ингредиентов -->
+  <div class="ingredient-badges-overlay" id="ingredient-badges-overlay"></div>
+</div>
+    
+    <!-- Блок управления режимами превью -->
+    <div class="mode-toggle-bar">
+      <button class="render-mode-btn active" data-render="hybrid">✨ AI + Canvas</button>
+      <button class="render-mode-btn" data-render="procedural">🎨 Только Canvas</button>
+      <div class="render-mode-info" id="render-mode-info">AI генерирует базу, Canvas рисует вкрапления</div>
+    </div>
+    
+    <!-- 🆕 Кнопка генерации AI-фото под рецепт -->
+    <div class="recipe-generation-bar">
+      <button class="btn-generate-recipe" id="generate-recipe-btn">
+        Посмотреть срез
+      </button>
+      <div class="recipe-generation-status" id="recipe-generation-status"></div>
+    </div>
+    
+    <div class="visualizer-hint" id="visualizer-hint">Выбери ингредиенты, чтобы увидеть колбасу</div>
+    <div class="render-info" id="render-info"></div>
+  </div>
+</div>
+
+        <!-- Итог -->
+        <div class="card">
+          <h2>📊 Итого</h2>
+          <div id="alerts" class="alerts"></div>
+          <div id="summary-content"><div class="empty">Выберите ингредиенты</div></div>
+          <button class="btn btn-primary" id="add-to-cart-btn" disabled>В корзину</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel" id="panel-checkout">
+    <div class="card">
+      <h2>🛒 Ваша корзина</h2>
+      <div id="cart-items"></div>
+      <h3>Выберите слот доставки</h3>
+      <div class="slots-grid" id="slots-container"></div>
+      <h3>Адрес доставки</h3>
+      <input type="text" id="addr-street" placeholder="Улица" style="width:100%;padding:10px;margin:5px 0;border:2px solid #e0d4c4;border-radius:8px;">
+      <div style="display:flex;gap:10px;">
+        <input type="text" id="addr-building" placeholder="Дом" style="flex:1;padding:10px;border:2px solid #e0d4c4;border-radius:8px;">
+        <input type="text" id="addr-apartment" placeholder="Квартира" style="flex:1;padding:10px;border:2px solid #e0d4c4;border-radius:8px;">
+      </div>
+      <textarea id="addr-comment" placeholder="Комментарий к заказу" style="width:100%;padding:10px;margin-top:10px;border:2px solid #e0d4c4;border-radius:8px;height:60px;"></textarea>
+      <button class="btn btn-primary" id="place-order-btn" style="margin-top:20px;">Оформить заказ</button>
+    </div>
+  </div>
+  <div class="panel" id="panel-orders">
+    <div class="card">
+      <h2>📦 История заказов</h2>
+      <div id="orders-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// ШУМ ПЕРЛИНА
+// ============================================
+class PerlinNoise {
+  constructor(seed = 0) {
+    this.perm = new Uint8Array(512);
+    this.gradP = new Array(512);
+    this.seed(seed);
+  }
+  seed(seed) {
+    const p = new Uint8Array(256);
+    for (let i = 0; i < 256; i++) p[i] = i;
+    let s = seed >>> 0;
+    for (let i = 255; i > 0; i--) {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      const j = s % (i + 1);
+      [p[i], p[j]] = [p[j], p[i]];
+    }
+    const grad2 = [[1,1],[-1,1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
+    for (let i = 0; i < 512; i++) {
+      this.perm[i] = p[i & 255];
+      this.gradP[i] = grad2[this.perm[i] % 8];
+    }
+  }
+  fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+  lerp(a, b, t) { return (1 - t) * a + t * b; }
+  noise2D(x, y) {
+    let X = Math.floor(x) & 255, Y = Math.floor(y) & 255;
+    x -= Math.floor(x); y -= Math.floor(y);
+    const u = this.fade(x), v = this.fade(y);
+    const A = this.perm[X] + Y, B = this.perm[X + 1] + Y;
+    const g00 = this.gradP[A], g10 = this.gradP[B];
+    const g01 = this.gradP[A + 1], g11 = this.gradP[B + 1];
+    const n00 = g00[0]*x + g00[1]*y;
+    const n10 = g10[0]*(x-1) + g10[1]*y;
+    const n01 = g01[0]*x + g01[1]*(y-1);
+    const n11 = g11[0]*(x-1) + g11[1]*(y-1);
+    return this.lerp(this.lerp(n00, n10, u), this.lerp(n01, n11, u), v);
+  }
+  fbm(x, y, octaves = 4, lacunarity = 2.0, persistence = 0.5) {
+    let value = 0, amplitude = 1, frequency = 1, maxValue = 0;
+    for (let i = 0; i < octaves; i++) {
+      value += amplitude * this.noise2D(x * frequency, y * frequency);
+      maxValue += amplitude;
+      amplitude *= persistence;
+      frequency *= lacunarity;
+    }
+    return value / maxValue;
+  }
+}
+
+// ============================================
+// ГИБРИДНЫЙ РЕНДЕРЕР
+// ============================================
+class HybridSausageRenderer {
+  constructor(canvas) {
+  this.canvas = canvas;
+  this.ctx = canvas.getContext("2d");
+  this.W = canvas.width;
+  this.H = canvas.height;
+  this.baseImages = {};
+  this.baseStatus = {};
+  this.baseAnalysis = {};
+  this.renderMode = "hybrid";
+  this.onStatusChange = null;
+  
+  // 🆕 Кэш цветных эмодзи-изображений
+  this.emojiImageCache = new Map();
+}
+
+  async loadBase(meatType) {
+    this.baseStatus[meatType] = 'loading';
+    if (this.onStatusChange) this.onStatusChange();
+
+    try {
+      const res = await fetch(`/api/generate-base-image?meat_type=${meatType}`);
+      const data = await res.json();
+      
+      if (data.success && data.image_url) {
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = data.image_url + '?t=' + Date.now();
+        });
+        
+        this.baseImages[meatType] = img;
+        this.baseStatus[meatType] = data.cached ? 'cached' : 'ready';
+        this.baseAnalysis[meatType] = this.analyzeBaseImage(img);
+        
+        if (this.onStatusChange) this.onStatusChange();
+        
+        const source = data.cached ? 'из кэша' : 'сгенерировано';
+        console.log(`✅ ${meatType} загружен ${source} (${data.file_size} байт)`);
+        
+        if (this._currentMeatType === meatType) {
+          this._forceRerender && this._forceRerender();
+        }
+        return true;
+      } else {
+        throw new Error(data.error || "Unknown error");
+      }
+    } catch (e) {
+      console.error(`❌ Failed to load ${meatType}:`, e);
+      this.baseStatus[meatType] = 'error';
+      if (this.onStatusChange) this.onStatusChange();
+      return false;
+    }
+  }
+
+  async regenerateBase(meatType) {
+    this.baseStatus[meatType] = 'loading';
+    if (this.onStatusChange) this.onStatusChange();
+    
+    try {
+      const res = await fetch(`/api/regenerate-base-image`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({meat_type: meatType}),
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = data.image_url + '?t=' + Date.now();
+        });
+        
+        this.baseImages[meatType] = img;
+        this.baseStatus[meatType] = 'ready';
+        this.baseAnalysis[meatType] = this.analyzeBaseImage(img);
+        
+        if (this.onStatusChange) this.onStatusChange();
+        console.log(`🔄 ${meatType} перегенерирован (seed=${data.seed})`);
+        
+        if (this._currentMeatType === meatType) {
+          this._forceRerender && this._forceRerender();
+        }
+        return true;
+      } else {
+        throw new Error(data.error || "Unknown error");
+      }
+    } catch (e) {
+      console.error(`❌ Failed to regenerate ${meatType}:`, e);
+      this.baseStatus[meatType] = 'error';
+      if (this.onStatusChange) this.onStatusChange();
+      return false;
+    }
+  }
+
+  analyzeBaseImage(img) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = img.width;
+    tempCanvas.height = img.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(img, 0, 0);
+    
+    const cx = img.width / 2;
+    const cy = img.height / 2;
+    const rx = img.width * 0.35;
+    const ry = img.height * 0.35;
+    
+    let r = 0, g = 0, b = 0, count = 0;
+    let brightness = 0;
+    
+    try {
+      const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+      const data = imageData.data;
+      
+      for (let y = Math.floor(cy - ry); y < Math.ceil(cy + ry); y += 3) {
+        for (let x = Math.floor(cx - rx); x < Math.ceil(cx + rx); x += 3) {
+          const dx = (x - cx) / rx;
+          const dy = (y - cy) / ry;
+          if (dx * dx + dy * dy <= 1) {
+            const idx = (y * img.width + x) * 4;
+            r += data[idx];
+            g += data[idx + 1];
+            b += data[idx + 2];
+            brightness += (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+            count++;
+          }
+        }
+      }
+    } catch (e) {
+      return { avgColor: { r: 140, g: 60, b: 50 }, brightness: 100 };
+    }
+    
+    if (count === 0) return { avgColor: { r: 140, g: 60, b: 50 }, brightness: 100 };
+    
+    return {
+      avgColor: { r: r / count, g: g / count, b: b / count },
+      brightness: brightness / count,
+    };
+  }
+
+  // ============================================
+// 🎨 ЦВЕТНЫЕ ЭМОДЗИ ЧЕРЕЗ SVG
+// ============================================
+getEmojiImage(emoji, size) {
+  const key = `${emoji}_${size}`;
+  
+  // Возвращаем из кэша, если уже загружен
+  if (this.emojiImageCache.has(key)) {
+    const cached = this.emojiImageCache.get(key);
+    if (cached.complete && cached.naturalWidth > 0) {
+      return cached;
+    }
+  }
+  
+  // Создаём SVG с эмодзи
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 100 100">
+      <text 
+        x="50" 
+        y="85" 
+        font-size="80" 
+        text-anchor="middle" 
+        font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif"
+      >${emoji}</text>
+    </svg>
+  `.trim();
+  
+  const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  
+  const img = new Image();
+  img.onload = () => {
+    // Когда изображение загрузится — перерисовываем превью
+    if (this._forceRerender) this._forceRerender();
+  };
+  img.src = dataUrl;
+  
+  this.emojiImageCache.set(key, img);
+  return img;
+}
+
+  async loadAllBases() {
+    const types = ["beef", "pork", "turkey", "chicken"];
+    await Promise.all(types.map(t => this.loadBase(t)));
+  }
+
+  getPrimaryMeatType(meatIds) {
+    if (meatIds.length === 0) return null;
+    const firstId = meatIds[0];
+    if (firstId.includes("beef")) return "beef";
+    if (firstId.includes("pork")) return "pork";
+    if (firstId.includes("turkey")) return "turkey";
+    if (firstId.includes("chicken")) return "chicken";
+    return "beef";
+  }
+
+  async render(state) {
+    const startTime = performance.now();
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.W, this.H);
+
+    const meatIds = state.selections["opt_meat"] || [];
+    const fillerIds = state.selections["opt_filler"] || [];
+    const spiceIds = state.selections["opt_spice"] || [];
+    const shellId = (state.selections["opt_shell"] || [])[0];
+
+    if (meatIds.length === 0) {
+      this.drawPlaceholder();
+      return;
+    }
+
+    const meatType = this.getPrimaryMeatType(meatIds);
+    this._currentMeatType = meatType;
+
+    const useAI = this.renderMode === "hybrid" && this.baseImages[meatType];
+
+    if (useAI) {
+      this.renderHybrid(state, meatType, meatIds, fillerIds, spiceIds, shellId);
+    } else {
+      this.renderProcedural(state);
+    }
+
+    const renderTime = (performance.now() - startTime).toFixed(1);
+    let mode;
+    if (useAI) {
+      const status = this.baseStatus[meatType];
+      mode = status === 'cached' ? "📦 AI (кэш) + Canvas" : "✨ AI + Canvas";
+    } else if (this.renderMode === "hybrid" && this.baseStatus[meatType] === 'loading') {
+      mode = "⏳ Canvas (AI загружается...)";
+    } else if (this.renderMode === "hybrid" && this.baseStatus[meatType] === 'error') {
+      mode = "🎨 Canvas (AI недоступен)";
+    } else {
+      mode = "🎨 Canvas only";
+    }
+    document.getElementById("render-info").textContent = `${mode} • ${this.W}×${this.H} • ${renderTime}ms`;
+  }
+
+  drawPlaceholder() {
+    const ctx = this.ctx;
+    ctx.fillStyle = "rgba(139, 105, 20, 0.3)";
+    ctx.font = "italic 20px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Выберите мясо, чтобы увидеть колбасу", this.W/2, this.H/2);
+  }
+
+  renderHybrid(state, meatType, meatIds, fillerIds, spiceIds, shellId) {
+    const ctx = this.ctx;
+    const W = this.W, H = this.H;
+    const baseImg = this.baseImages[meatType];
+    const analysis = this.baseAnalysis[meatType] || { avgColor: {r:140,g:60,b:50}, brightness: 100 };
+
+    if (meatIds.length > 1) {
+      const secondType = this.getPrimaryMeatType([meatIds[1]]);
+      const secondImg = this.baseImages[secondType];
+      if (secondImg) {
+        ctx.drawImage(baseImg, 0, 0, W, H);
+        ctx.globalAlpha = 0.5;
+        ctx.drawImage(secondImg, 0, 0, W, H);
+        ctx.globalAlpha = 1.0;
+      } else {
+        ctx.drawImage(baseImg, 0, 0, W, H);
+      }
+    } else {
+      ctx.drawImage(baseImg, 0, 0, W, H);
+    }
+
+  }
+
+  drawRealisticFillers(ctx, cx, cy, rx, ry, fillerIds, spiceIds, state, analysis) {
+    let rng = Math.abs(cx * 200 + cy * 300) | 0;
+    const rand = () => { rng = (rng * 9301 + 49297) % 233280; return rng / 233280; };
+    const allIds = [...fillerIds, ...spiceIds];
+    
+    allIds.forEach(ingId => {
+      const ing = state.ingredients[ingId];
+      if (!ing) return;
+      
+      const baseColor = ing.filler_color || "#888";
+      const shape = ing.filler_shape || "dot";
+      
+      const adaptedColor = this.adaptColorToBase(baseColor, analysis);
+      const colorDark = adjustColor(adaptedColor, 0.55);
+      const colorLight = adjustColor(adaptedColor, 1.35);
+      const colorMid = adaptedColor;
+      
+      const count = 10 + Math.floor(rand() * 6);
+      
+      for (let i = 0; i < count; i++) {
+        const angle = rand() * Math.PI * 2;
+        const radius = Math.sqrt(rand()) * 0.82;
+        const x = cx + Math.cos(angle) * rx * radius;
+        const y = cy + Math.sin(angle) * ry * radius;
+        const size = 5 + rand() * 7;
+        const rotation = rand() * Math.PI * 2;
+        
+        const distFromCenter = Math.sqrt(((x-cx)/rx)**2 + ((y-cy)/ry)**2);
+        const depthFactor = 1 - distFromCenter * 0.3;
+        
+        if (shape === "circle") {
+          this.drawRealisticCheese(ctx, x, y, size, rotation, colorMid, colorLight, colorDark, depthFactor, rand);
+        } else if (shape === "oval") {
+          this.drawRealisticOlive(ctx, x, y, size, rotation, colorMid, colorLight, colorDark, depthFactor, rand);
+        } else if (shape === "dot") {
+          this.drawRealisticSpice(ctx, x, y, size, colorMid, colorLight, colorDark, depthFactor, rand);
+        } else if (shape === "chunk") {
+          this.drawRealisticChunk(ctx, x, y, size, rotation, colorMid, colorLight, colorDark, depthFactor, rand);
+        } else if (shape === "stick") {
+          this.drawRealisticStick(ctx, x, y, size, rotation, colorMid, colorLight, colorDark, depthFactor, rand);
+        }
+      }
+    });
+  }
+
+  adaptColorToBase(color, analysis) {
+    const base = analysis.avgColor;
+    const ing = hexToRgb(color);
+    
+    const baseBrightness = (base.r + base.g + base.b) / 3;
+    const adjustment = baseBrightness < 120 ? 1.1 : 0.95;
+    
+    const mixed = {
+      r: ing.r * 0.75 + base.r * 0.25,
+      g: ing.g * 0.75 + base.g * 0.25,
+      b: ing.b * 0.75 + base.b * 0.25,
+    };
+    
+    return rgbToHex(mixed.r * adjustment, mixed.g * adjustment, mixed.b * adjustment);
+  }
+
+  drawRealisticCheese(ctx, x, y, size, rotation, color, colorLight, colorDark, depth, rand) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation * 0.3);
+    
+    ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1.5;
+    ctx.shadowOffsetY = 2;
+    
+    const grad = ctx.createRadialGradient(-size * 0.3, -size * 0.3, 0, 0, 0, size);
+    grad.addColorStop(0, colorLight);
+    grad.addColorStop(0.5, color);
+    grad.addColorStop(1, colorDark);
+    ctx.fillStyle = grad;
+    
+    ctx.beginPath();
+    for (let i = 0; i <= 20; i++) {
+      const a = (i / 20) * Math.PI * 2;
+      const wobble = 1 + (rand() - 0.5) * 0.15;
+      const px = Math.cos(a) * size * wobble;
+      const py = Math.sin(a) * size * wobble;
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    const holesCount = 2 + Math.floor(rand() * 3);
+    for (let h = 0; h < holesCount; h++) {
+      const hx = (rand() - 0.5) * size * 1.2;
+      const hy = (rand() - 0.5) * size * 1.2;
+      const hr = size * (0.1 + rand() * 0.15);
+      
+      const holeGrad = ctx.createRadialGradient(hx, hy, 0, hx, hy, hr);
+      holeGrad.addColorStop(0, "rgba(80, 50, 20, 0.6)");
+      holeGrad.addColorStop(0.7, "rgba(120, 80, 40, 0.3)");
+      holeGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = holeGrad;
+      ctx.beginPath();
+      ctx.arc(hx, hy, hr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    const shineGrad = ctx.createRadialGradient(-size * 0.4, -size * 0.4, 0, -size * 0.2, -size * 0.2, size * 0.5);
+    shineGrad.addColorStop(0, "rgba(255, 255, 240, 0.7)");
+    shineGrad.addColorStop(0.5, "rgba(255, 255, 240, 0.2)");
+    shineGrad.addColorStop(1, "rgba(255, 255, 240, 0)");
+    ctx.fillStyle = shineGrad;
+    ctx.beginPath();
+    ctx.arc(-size * 0.3, -size * 0.3, size * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.beginPath();
+    ctx.arc(-size * 0.4, -size * 0.4, size * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
+  }
+
+  drawRealisticOlive(ctx, x, y, size, rotation, color, colorLight, colorDark, depth, rand) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowBlur = 5;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2.5;
+    
+    const grad = ctx.createRadialGradient(-size * 0.3, -size * 0.3, 0, 0, 0, size * 1.5);
+    grad.addColorStop(0, colorLight);
+    grad.addColorStop(0.4, color);
+    grad.addColorStop(1, colorDark);
+    ctx.fillStyle = grad;
+    
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 1.5, size, 0, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    if (rand() > 0.3) {
+      const pitGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.4);
+      pitGrad.addColorStop(0, "rgba(40, 20, 10, 0.7)");
+      pitGrad.addColorStop(0.6, "rgba(60, 30, 15, 0.4)");
+      pitGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = pitGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size * 0.4, size * 0.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    const shineGrad = ctx.createRadialGradient(-size * 0.6, -size * 0.4, 0, -size * 0.4, -size * 0.2, size * 0.8);
+    shineGrad.addColorStop(0, "rgba(255, 255, 255, 0.6)");
+    shineGrad.addColorStop(0.3, "rgba(255, 255, 255, 0.2)");
+    shineGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = shineGrad;
+    ctx.beginPath();
+    ctx.ellipse(-size * 0.5, -size * 0.3, size * 0.7, size * 0.4, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+    ctx.beginPath();
+    ctx.ellipse(-size * 0.7, -size * 0.4, size * 0.15, size * 0.1, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 1.5, size, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    
+    ctx.restore();
+  }
+
+  drawRealisticSpice(ctx, x, y, size, color, colorLight, colorDark, depth, rand) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+    ctx.beginPath();
+    ctx.arc(x + 0.8, y + 1, size * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+    
+    const grad = ctx.createRadialGradient(x - size * 0.25, y - size * 0.25, 0, x, y, size * 0.7);
+    grad.addColorStop(0, colorLight);
+    grad.addColorStop(0.6, color);
+    grad.addColorStop(1, colorDark);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, size * 0.7, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.globalCompositeOperation = "multiply";
+    for (let i = 0; i < 5; i++) {
+      const tx = x + (rand() - 0.5) * size;
+      const ty = y + (rand() - 0.5) * size;
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.1 + rand() * 0.15})`;
+      ctx.beginPath();
+      ctx.arc(tx, ty, size * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalCompositeOperation = "source-over";
+    
+    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.beginPath();
+    ctx.arc(x - size * 0.25, y - size * 0.25, size * 0.12, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  drawRealisticChunk(ctx, x, y, size, rotation, color, colorLight, colorDark, depth, rand) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    
+    const points = [];
+    const numPoints = 8;
+    for (let j = 0; j < numPoints; j++) {
+      const a = (j / numPoints) * Math.PI * 2;
+      const r = size * (0.7 + rand() * 0.5);
+      points.push([Math.cos(a) * r * 1.3, Math.sin(a) * r]);
+    }
+    
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1.5;
+    ctx.shadowOffsetY = 2;
+    
+    const grad = ctx.createRadialGradient(-size * 0.3, -size * 0.3, 0, 0, 0, size * 1.5);
+    grad.addColorStop(0, colorLight);
+    grad.addColorStop(0.5, color);
+    grad.addColorStop(1, colorDark);
+    ctx.fillStyle = grad;
+    
+    ctx.beginPath();
+    points.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p[0], p[1]);
+      else ctx.lineTo(p[0], p[1]);
+    });
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    ctx.strokeStyle = `rgba(0, 0, 0, 0.2)`;
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 4; i++) {
+      const sx = (rand() - 0.5) * size * 1.5;
+      const sy = (rand() - 0.5) * size * 1.5;
+      const ex = (rand() - 0.5) * size * 1.5;
+      const ey = (rand() - 0.5) * size * 1.5;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+    }
+    
+    ctx.fillStyle = "rgba(255, 255, 240, 0.4)";
+    ctx.beginPath();
+    ctx.arc(-size * 0.4, -size * 0.4, size * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.restore();
+  }
+
+  drawRealisticStick(ctx, x, y, size, rotation, color, colorLight, colorDark, depth, rand) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    
+    const w = size * 4.5;
+    const h = size * 0.8;
+    
+    ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+    ctx.shadowBlur = 3;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1.5;
+    
+    const grad = ctx.createLinearGradient(0, -h/2, 0, h/2);
+    grad.addColorStop(0, colorLight);
+    grad.addColorStop(0.3, color);
+    grad.addColorStop(0.7, color);
+    grad.addColorStop(1, colorDark);
+    ctx.fillStyle = grad;
+    
+    const radius = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(-w/2 + radius, -h/2);
+    ctx.lineTo(w/2 - radius, -h/2);
+    ctx.arcTo(w/2, -h/2, w/2, -h/2 + radius, radius);
+    ctx.lineTo(w/2, h/2 - radius);
+    ctx.arcTo(w/2, h/2, w/2 - radius, h/2, radius);
+    ctx.lineTo(-w/2 + radius, h/2);
+    ctx.arcTo(-w/2, h/2, -w/2, h/2 - radius, radius);
+    ctx.lineTo(-w/2, -h/2 + radius);
+    ctx.arcTo(-w/2, -h/2, -w/2 + radius, -h/2, radius);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    ctx.strokeStyle = `rgba(255, 255, 255, 0.25)`;
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i < 3; i++) {
+      const fy = -h/2 + (i + 0.5) * (h / 3);
+      ctx.beginPath();
+      ctx.moveTo(-w/2 + 3, fy);
+      ctx.lineTo(w/2 - 3, fy);
+      ctx.stroke();
+    }
+    
+    const shineGrad = ctx.createLinearGradient(0, -h/2, 0, 0);
+    shineGrad.addColorStop(0, "rgba(255, 255, 255, 0.5)");
+    shineGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = shineGrad;
+    ctx.fillRect(-w/2, -h/2, w, h/2);
+    
+    ctx.restore();
+  }
+
+// ============================================
+// 🏷️ ЗНАЧКИ ИНГРЕДИЕНТОВ — В РЯД ПО НИЖНЕМУ КРАЮ
+// ============================================
+drawIngredientBadges(ctx, cx, cy, rx, ry, state) {
+  // Собираем все выбранные наполнители и специи
+  const fillerIds = state.selections["opt_filler"] || [];
+  const spiceIds = state.selections["opt_spice"] || [];
+  const allIds = [...fillerIds, ...spiceIds];
+  
+  if (allIds.length === 0) return;
+  
+  const displayIds = allIds.slice(0, 10);
+  const count = displayIds.length;
+  const badgeSize = 48;
+  const gap = 8;
+  const bottomMargin = 15;
+  
+  const totalWidth = count * badgeSize + (count - 1) * gap;
+  const startX = (this.W - totalWidth) / 2 + badgeSize / 2;
+  const y = this.H - bottomMargin - badgeSize / 2;
+  
+  // 🆕 ВАЖНО: сбрасываем режим наложения, чтобы эмодзи были цветными
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-over';
+  
+  displayIds.forEach((ingId, index) => {
+    const ing = state.ingredients[ingId];
+    if (!ing || !ing.image) return;
+    
+    const x = startX + index * (badgeSize + gap);
+    
+    // 1. Тень под значком
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 2;
+    
+    // 2. Круглый белый фон
+    const bgGrad = ctx.createRadialGradient(x, y, 0, x, y, badgeSize * 0.5);
+    bgGrad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+    bgGrad.addColorStop(0.8, "rgba(255, 255, 255, 0.9)");
+    bgGrad.addColorStop(1, "rgba(255, 255, 255, 0.7)");
+    ctx.fillStyle = bgGrad;
+    ctx.beginPath();
+    ctx.arc(x, y, badgeSize * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // 3. Бордовая обводка
+    ctx.strokeStyle = "rgba(139, 0, 0, 0.5)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    // Сбрасываем тень перед эмодзи
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    // 4. 🆕 Рисуем цветной эмодзи через SVG
+    const emojiImg = this.getEmojiImage(ing.image, badgeSize);
+    if (emojiImg.complete && emojiImg.naturalWidth > 0) {
+      // SVG загружен — рисуем цветной эмодзи
+      ctx.drawImage(emojiImg, x - badgeSize * 0.35, y - badgeSize * 0.35, badgeSize * 0.7, badgeSize * 0.7);
+    } else {
+      // Fallback: если SVG ещё не загрузился, рисуем через fillText
+      ctx.fillStyle = "#000";
+      ctx.font = `${badgeSize * 0.7}px "Apple Color Emoji", "Segoe UI Emoji", sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(ing.image, x, y + 1);
+    }
+  });
+  
+  // 5. Счётчик "+N" если больше 10 ингредиентов
+  if (allIds.length > 10) {
+    const extra = allIds.length - 10;
+    const x = startX + 10 * (badgeSize + gap);
+    
+    ctx.fillStyle = "rgba(139, 0, 0, 0.9)";
+    ctx.beginPath();
+    ctx.arc(x, y, badgeSize * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    
+    ctx.fillStyle = "white";
+    ctx.font = `bold ${badgeSize * 0.35}px -apple-system, sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`+${extra}`, x, y);
+  }
+  
+  ctx.restore();
+}
+
+  renderProcedural(state) {
+    const ctx = this.ctx;
+    const W = this.W, H = this.H;
+    const meatIds = state.selections["opt_meat"] || [];
+    const fillerIds = state.selections["opt_filler"] || [];
+    const spiceIds = state.selections["opt_spice"] || [];
+    const shellId = (state.selections["opt_shell"] || [])[0];
+
+    const meatColors = {
+      "ing_beef": {base: "#A52A2A", light: "#C87070", dark: "#5A1515"},
+      "ing_pork": {base: "#E8A0A0", light: "#F5C5C5", dark: "#A06060"},
+      "ing_turkey": {base: "#D4A574", light: "#E8C9A0", dark: "#8B6F47"},
+      "ing_chicken": {base: "#E8B888", light: "#F5D0A8", dark: "#A07850"},
+    };
+
+    let meatColor = "#A52A2A", meatColorLight = "#C87070", meatColorDark = "#5A1515";
+    if (meatIds.length === 1 && meatColors[meatIds[0]]) {
+      const c = meatColors[meatIds[0]];
+      meatColor = c.base; meatColorLight = c.light; meatColorDark = c.dark;
+    } else if (meatIds.length > 0) {
+      const colors = meatIds.map(id => meatColors[id] || meatColors["ing_beef"]);
+      meatColor = blendColors(colors.map(c => c.base));
+      meatColorLight = blendColors(colors.map(c => c.light));
+      meatColorDark = blendColors(colors.map(c => c.dark));
+    }
+
+    let casingColor = "#C8956D", casingType = "natural";
+    if (shellId) {
+      const shell = state.ingredients[shellId];
+      casingColor = shell.casing_color || casingColor;
+      casingType = shell.casing_type || "natural";
+    }
+
+    const weightScale = Math.min(1.3, Math.max(0.75, state.weight / 2000));
+    const sausageW = 620 * weightScale;
+    const sausageH = 260 * weightScale;
+    const CX = W / 2, CY = H / 2;
+
+    const seedStr = meatIds.concat(fillerIds, spiceIds, [shellId || ""]).join("") + state.weight;
+    let seedHash = 0;
+    for (let i = 0; i < seedStr.length; i++) seedHash = ((seedHash << 5) - seedHash + seedStr.charCodeAt(i)) | 0;
+    const perlin = new PerlinNoise(Math.abs(seedHash));
+    const perlin2 = new PerlinNoise(Math.abs(seedHash) + 1234);
+    const perlin3 = new PerlinNoise(Math.abs(seedHash) + 5678);
+
+    const shadowGrad = ctx.createRadialGradient(CX, CY + sausageH/2 + 20, 10, CX, CY + sausageH/2 + 20, sausageW/2);
+    shadowGrad.addColorStop(0, "rgba(0, 0, 0, 0.35)");
+    shadowGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = shadowGrad;
+    ctx.beginPath();
+    ctx.ellipse(CX, CY + sausageH/2 + 20, sausageW/2, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.save();
+    ctx.beginPath();
+    const steps = 180;
+    for (let i = 0; i <= steps; i++) {
+      const angle = (i / steps) * Math.PI * 2;
+      const noise = perlin.noise2D(Math.cos(angle) * 2, Math.sin(angle) * 2) * 4;
+      const rx = sausageW/2 + noise;
+      const ry = sausageH/2 + noise * 0.7;
+      const x = CX + Math.cos(angle) * rx;
+      const y = CY + Math.sin(angle) * ry;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    const casingGrad = ctx.createLinearGradient(CX, CY - sausageH/2, CX, CY + sausageH/2);
+    casingGrad.addColorStop(0, adjustColor(casingColor, 1.25));
+    casingGrad.addColorStop(0.4, casingColor);
+    casingGrad.addColorStop(1, adjustColor(casingColor, 0.6));
+    ctx.fillStyle = casingGrad;
+    ctx.fill();
+    ctx.strokeStyle = adjustColor(casingColor, 0.6);
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.restore();
+
+    const meatRx = sausageW/2 - 15;
+    const meatRy = sausageH/2 - 10;
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(CX, CY, meatRx, meatRy, 0, 0, Math.PI * 2);
+    ctx.clip();
+
+    const meatGrad = ctx.createRadialGradient(CX - meatRx * 0.2, CY - meatRy * 0.3, meatRx * 0.1, CX, CY, meatRx);
+    meatGrad.addColorStop(0, meatColorLight);
+    meatGrad.addColorStop(0.6, meatColor);
+    meatGrad.addColorStop(1, meatColorDark);
+    ctx.fillStyle = meatGrad;
+    ctx.fillRect(CX - meatRx, CY - meatRy, meatRx * 2, meatRy * 2);
+
+    const texScale = 2;
+    const texW = Math.ceil(meatRx * 2 / texScale);
+    const texH = Math.ceil(meatRy * 2 / texScale);
+    const texCanvas = document.createElement("canvas");
+    texCanvas.width = texW; texCanvas.height = texH;
+    const texCtx = texCanvas.getContext("2d");
+    const texImgData = texCtx.createImageData(texW, texH);
+    const texData = texImgData.data;
+    const meatRgb = hexToRgb(meatColor);
+    const meatLightRgb = hexToRgb(meatColorLight);
+    const meatDarkRgb = hexToRgb(meatColorDark);
+
+    for (let py = 0; py < texH; py++) {
+      for (let px = 0; px < texW; px++) {
+        const x = (px / texW) * meatRx * 2 - meatRx;
+        const y = (py / texH) * meatRy * 2 - meatRy;
+        if ((x*x)/(meatRx*meatRx) + (y*y)/(meatRy*meatRy) > 1) continue;
+        const nx = (x + CX) * 0.015;
+        const ny = (y + CY) * 0.015;
+        const fibers = perlin.fbm(nx * 0.7, ny * 2.5, 4, 2.0, 0.5);
+        const grain = perlin2.noise2D(nx * 8, ny * 8) * 0.15;
+        const fatNoise = perlin3.fbm(nx * 1.2, ny * 1.2, 3);
+        const isFat = fatNoise > 0.45;
+        let r, g, b;
+        if (isFat) {
+          const fatIntensity = (fatNoise - 0.45) * 3;
+          r = 255 - fatIntensity * 20; g = 245 - fatIntensity * 25; b = 220 - fatIntensity * 40;
+        } else {
+          const modulation = fibers * 0.35 + grain;
+          if (modulation > 0) {
+            r = meatRgb.r + (meatLightRgb.r - meatRgb.r) * modulation;
+            g = meatRgb.g + (meatLightRgb.g - meatRgb.g) * modulation;
+            b = meatRgb.b + (meatLightRgb.b - meatRgb.b) * modulation;
+          } else {
+            r = meatRgb.r + (meatRgb.r - meatDarkRgb.r) * modulation;
+            g = meatRgb.g + (meatRgb.g - meatDarkRgb.g) * modulation;
+            b = meatRgb.b + (meatRgb.b - meatDarkRgb.b) * modulation;
+          }
+        }
+        const idx = (py * texW + px) * 4;
+        texData[idx] = r; texData[idx+1] = g; texData[idx+2] = b; texData[idx+3] = 255;
+      }
+    }
+    texCtx.putImageData(texImgData, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(texCanvas, CX - meatRx, CY - meatRy, meatRx * 2, meatRy * 2);
+
+    const fakeAnalysis = { avgColor: meatRgb, brightness: (meatRgb.r + meatRgb.g + meatRgb.b) / 3 };
+    this.drawRealisticFillers(ctx, CX, CY, meatRx, meatRy, fillerIds, spiceIds, state, fakeAnalysis);
+
+    const innerShadowGrad = ctx.createRadialGradient(CX, CY, Math.min(meatRx, meatRy) * 0.6, CX, CY, Math.max(meatRx, meatRy));
+    innerShadowGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
+    innerShadowGrad.addColorStop(1, "rgba(0, 0, 0, 0.35)");
+    ctx.fillStyle = innerShadowGrad;
+    ctx.fillRect(CX - meatRx, CY - meatRy, meatRx * 2, meatRy * 2);
+    ctx.restore();
+
+    // 🏷️ Значки выбранных ингредиентов
+    this.drawIngredientBadges(ctx, CX, CY, meatRx, meatRy, state);
+
+    const hlGrad = ctx.createRadialGradient(CX - sausageW * 0.2, CY - sausageH * 0.35, 5,
+                                             CX - sausageW * 0.2, CY - sausageH * 0.35, sausageW * 0.25);
+    hlGrad.addColorStop(0, "rgba(255, 255, 255, 0.5)");
+    hlGrad.addColorStop(1, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = hlGrad;
+    ctx.beginPath();
+    ctx.ellipse(CX - sausageW * 0.2, CY - sausageH * 0.35, sausageW * 0.25, sausageH * 0.2, -0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+// ============================================
+// УТИЛИТЫ
+// ============================================
+function hexToRgb(hex) {
+  const c = hex.replace("#", "");
+  return { r: parseInt(c.substr(0, 2), 16), g: parseInt(c.substr(2, 2), 16), b: parseInt(c.substr(4, 2), 16) };
+}
+function rgbToHex(r, g, b) {
+  const toHex = v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
+  return "#" + toHex(r) + toHex(g) + toHex(b);
+}
+function blendColors(colors) {
+  if (colors.length === 0) return "#A52A2A";
+  let r = 0, g = 0, b = 0;
+  colors.forEach(c => { const rgb = hexToRgb(c); r += rgb.r; g += rgb.g; b += rgb.b; });
+  return rgbToHex(r / colors.length, g / colors.length, b / colors.length);
+}
+function adjustColor(hex, factor) {
+  const rgb = hexToRgb(hex);
+  return rgbToHex(rgb.r * factor, rgb.g * factor, rgb.b * factor);
+}
+
+// ============================================
+// СОСТОЯНИЕ
+// ============================================
+const state = {
+  ingredients: {}, options: [], selections: {},
+  weight: 1000, mode: "STANDARD", validation: null,
+  cart: [], selectedSlot: null, orders: [], renderScheduled: false,
+};
+let renderer;
+
+// ============================================
+// ГЛОБАЛЬНЫЕ ФУНКЦИИ
+// ============================================
+function removeFromCart(idx) { state.cart.splice(idx, 1); renderCart(); }
+function selectSlot(id) { state.selectedSlot = id; loadSlots(); }
+function switchTab(panel) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.panel === panel));
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === "panel-" + panel));
+  if (panel === "checkout") loadSlots();
+  if (panel === "orders") loadOrders();
+}
+function translateStatus(s) {
+  return {NEW:"Новый",CONFIRMED:"Подтвержден",IN_PRODUCTION:"В производстве",ASSEMBLED:"Собран",OUT_FOR_DELIVERY:"В доставке",DELIVERED:"Доставлен",CANCELLED:"Отменен"}[s] || s;
+}
+function formatDate(d) { return new Date(d).toLocaleDateString("ru-RU", {day: "numeric", month: "long", weekday: "short"}); }
+
+async function regenerateBase(meatType) {
+  if (!renderer) return;
+  if (!confirm(`Перегенерировать AI-изображение для этого типа мяса?`)) return;
+  await renderer.regenerateBase(meatType);
+  renderAIStatus();
+  scheduleRender();
+}
+
+// ============================================
+// 🏷️ ОБНОВЛЕНИЕ HTML-ОВЕРЛЕЯ СО ЗНАЧКАМИ
+// ============================================
+function updateIngredientBadges() {
+  const overlay = document.getElementById("ingredient-badges-overlay");
+  if (!overlay) return;
+  
+  // Собираем все выбранные наполнители и специи
+  const fillerIds = state.selections["opt_filler"] || [];
+  const spiceIds = state.selections["opt_spice"] || [];
+  const allIds = [...fillerIds, ...spiceIds];
+  
+  // Если ничего не выбрано — скрываем оверлей
+  if (allIds.length === 0) {
+    overlay.classList.remove("visible");
+    overlay.innerHTML = "";
+    return;
+  }
+  
+  // Показываем оверлей
+  overlay.classList.add("visible");
+  
+  // Максимум 10 значков
+  const displayIds = allIds.slice(0, 10);
+  
+  // Генерируем HTML значков
+  let html = displayIds.map(ingId => {
+    const ing = state.ingredients[ingId];
+    if (!ing || !ing.image) return "";
+    return `<div class="ingredient-badge" title="${ing.name}">${ing.image}</div>`;
+  }).join("");
+  
+  // Если больше 10 — добавляем счётчик
+  if (allIds.length > 10) {
+    const extra = allIds.length - 10;
+    html += `<div class="ingredient-badge-extra" title="И ещё ${extra} ингредиентов">+${extra}</div>`;
+  }
+  
+  overlay.innerHTML = html;
+}
+
+function renderAIStatus() {
+  const chipsEl = document.getElementById("ai-status-chips");
+  const types = [
+    {id: "beef", name: "🥩 Говядина"}, {id: "pork", name: "🥓 Свинина"},
+    {id: "turkey", name: "🦃 Индейка"}, {id: "chicken", name: "🍗 Курица"},
+  ];
+  chipsEl.innerHTML = types.map(t => {
+    const status = renderer?.baseStatus[t.id] || 'loading';
+    let cls = '', content = '';
+    if (status === 'loading') {
+      cls = 'loading';
+      content = `<span class="spinner"></span> ${t.name}`;
+    } else if (status === 'cached') {
+      cls = 'cached';
+      content = `📦 ${t.name} <button class="ai-refresh-btn" onclick="regenerateBase('${t.id}')" title="Перегенерировать">🔄</button>`;
+    } else if (status === 'ready') {
+      cls = 'ready';
+      content = `✨ ${t.name} <button class="ai-refresh-btn" onclick="regenerateBase('${t.id}')" title="Перегенерировать">🔄</button>`;
+    } else if (status === 'error') {
+      cls = 'error';
+      content = `✗ ${t.name} <button class="ai-retry-btn" onclick="retryBase('${t.id}')">↻</button>`;
+    }
+    return `<span class="ai-base-chip ${cls}">${content}</span>`;
+  }).join("");
+}
+
+async function retryBase(meatType) {
+  if (!renderer) return;
+  await renderer.loadBase(meatType);
+  renderAIStatus();
+  scheduleRender();
+}
+
+async function initializeAI() {
+  renderer = new HybridSausageRenderer(document.getElementById("sausage-canvas"));
+  renderer.onStatusChange = () => { renderAIStatus(); scheduleRender(); };
+  renderer._forceRerender = () => scheduleRender();
+  renderAIStatus();
+  renderSausage();
+  renderer.loadAllBases().then(() => console.log("✅ Все AI-базы готовы"));
+}
+
+function renderSausage() {
+  if (!renderer) return;
+  renderer.render(state).then(() => {
+    const hint = document.getElementById("visualizer-hint");
+    const fillerIds = state.selections["opt_filler"] || [];
+    const spiceIds = state.selections["opt_spice"] || [];
+    const meatIds = state.selections["opt_meat"] || [];
+    if (meatIds.length === 0) hint.textContent = "Выберите мясо, чтобы увидеть колбасу";
+    else if (fillerIds.length + spiceIds.length === 0) hint.textContent = "Добавьте наполнители или специи, чтобы увидеть вкрапления";
+    else hint.textContent = `${fillerIds.length + spiceIds.length} ингредиент(ов) в составе • ${state.weight} г`;
+  });
+}
+
+function scheduleRender() {
+  if (state.renderScheduled) return;
+  state.renderScheduled = true;
+  requestAnimationFrame(() => {
+    renderSausage();
+    updateIngredientBadges();  // 🆕 Обновляем значки
+    state.renderScheduled = false;
+  });
+}
+
+function renderOptions() {
+  const container = document.getElementById("options-container");
+  const infoBanner = document.getElementById("mode-info");
+  container.innerHTML = "";
+  if (state.mode === "CHILDREN") {
+    infoBanner.style.display = "block";
+    infoBanner.innerHTML = "👶 <b>Детский режим:</b> острые специи (чеснок, паприка, перец) и орехи недоступны.";
+  } else infoBanner.style.display = "none";
+  
+  state.options.forEach(opt => {
+    const section = document.createElement("div");
+    section.style.marginBottom = "20px";
+    const title = document.createElement("h3");
+    title.textContent = `${opt.name} ${opt.is_required ? "*" : ""} (${state.selections[opt.id].length}/${opt.max_selections})`;
+    section.appendChild(title);
+    const grid = document.createElement("div");
+    grid.className = "ingredient-grid";
+    Object.values(state.ingredients)
+      .filter(i => opt.categories.includes(i.category))
+      .forEach(ing => {
+        const el = document.createElement("div");
+        el.className = "ingredient";
+        const isSelected = state.selections[opt.id].includes(ing.id);
+        const isForbiddenForChildren = state.mode === "CHILDREN" && ing.forbidden_for_children;
+        const isDisabled = !ing.is_available || isForbiddenForChildren;
+        if (isSelected) el.classList.add("selected");
+        if (isDisabled) el.classList.add("disabled");
+        let badges = "";
+        if (isSelected) badges += '<div class="badge">✓</div>';
+        if (isForbiddenForChildren) badges += '<div class="child-badge">🚫 острое</div>';
+        el.innerHTML = `${badges}
+          <span class="emoji">${ing.image}</span>
+          <div class="name">${ing.name}</div>
+          <div class="price">${ing.price_per_unit} ₽/${ing.unit === 'KG' ? 'кг' : ing.unit}</div>
+          <div class="stock">На складе: ${ing.available_kg} кг</div>`;
+               el.onclick = () => {
+          if (isDisabled) {
+            if (isForbiddenForChildren) alert(`🚫 «${ing.name}» не подходит для детского питания`);
+            return;
+          }
+          
+          const arr = state.selections[opt.id];
+          const idx = arr.indexOf(ing.id);
+          
+          // 🆕 СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ МЯСА (радио-кнопка)
+          if (opt.id === 'opt_meat' || opt.id === 'opt_shell') {
+            // Если кликнули по уже выбранному мясу, ничего не делаем (оно обязательно)
+            // Если кликнули по новому, заменяем весь массив на новый элемент
+            if (idx === -1) {
+              state.selections[opt.id] = [ing.id];
+            }
+          } 
+          // СТАНДАРТНАЯ ЛОГИКА ДЛЯ ОСТАЛЬНЫХ ИНГРЕДИЕНТОВ
+          else {
+            if (idx >= 0) {
+              arr.splice(idx, 1); // Снимаем выбор
+            } else {
+              if (arr.length >= opt.max_selections) {
+                alert(`Максимум ${opt.max_selections} в группе «${opt.name}»`);
+                return;
+              }
+              arr.push(ing.id); // Добавляем выбор
+            }
+          }
+          
+          renderOptions();
+          scheduleRender();
+          validate();
+        };
+        grid.appendChild(el);
+      });
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+async function validate() {
+  const alertsEl = document.getElementById("alerts");
+  const summaryEl = document.getElementById("summary-content");
+  const btn = document.getElementById("add-to-cart-btn");
+  const hasAny = Object.values(state.selections).some(arr => arr.length > 0);
+  if (!hasAny) {
+    alertsEl.innerHTML = "";
+    summaryEl.innerHTML = '<div class="empty">Выберите ингредиенты</div>';
+    btn.disabled = true;
+    state.validation = null;
+    return;
+  }
+  const res = await fetch("/api/validate", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ selections: state.selections, total_weight_g: state.weight, mode: state.mode }),
+  }).then(r => r.json());
+  state.validation = res;
+  let html = "";
+  res.errors.forEach(e => html += `<div class="alert error">❌ ${e}</div>`);
+  res.warnings.forEach(w => html += `<div class="alert warning">⚠️ ${w}</div>`);
+  if (res.valid) html += '<div class="alert success">✅ Рецепт валиден</div>';
+  alertsEl.innerHTML = html;
+  if (res.valid) {
+    let breakdownHtml = "";
+    Object.entries(res.price.breakdown).forEach(([k, v]) => {
+      breakdownHtml += `<div class="summary-row" style="font-size:0.9em;color:#666;"><span>↳ ${k}:</span><span>${v} ₽</span></div>`;
+    });
+    let allergensHtml = "";
+    if (res.allergens.length) allergensHtml = `<div class="alert warning">⚠️ Аллергены: ${res.allergens.join(", ")}</div>`;
+    summaryEl.innerHTML = `
+      <div class="summary-row"><span>Себестоимость:</span><span>${res.price.cost} ₽</span></div>
+      ${breakdownHtml}
+      <div class="summary-row"><span>Цена за кг:</span><span>${res.price.price_per_kg} ₽</span></div>
+      <div class="summary-row total"><span>ИТОГО:</span><span>${res.price.retail} ₽</span></div>
+      <div class="nutrition">
+        <div class="nutrition-item"><div class="value">${res.nutrition.kcal}</div><div class="label">ккал/100г</div></div>
+        <div class="nutrition-item"><div class="value">${res.nutrition.proteins}</div><div class="label">белки</div></div>
+        <div class="nutrition-item"><div class="value">${res.nutrition.fats}</div><div class="label">жиры</div></div>
+        <div class="nutrition-item"><div class="value">${res.nutrition.carbs}</div><div class="label">углеводы</div></div>
+      </div>
+      ${allergensHtml}`;
+    btn.disabled = false;
+    // 🆕 Проверяем кэш для текущего рецепта
+    setTimeout(() => checkRecipeCache(), 500);
+  } else {
+    summaryEl.innerHTML = '<div class="empty">Исправьте ошибки</div>';
+    btn.disabled = true;
+    // 🆕 Скрываем AI-фото при изменении рецепта
+if (currentRecipeImageUrl) {
+  hideRecipeAIImage();
+  document.getElementById("recipe-generation-status").textContent = "";
+  document.getElementById("generate-recipe-btn").textContent = "📸 Сгенерировать фото рецепта";
+}
+  }
+}
+
+function renderCart() {
+  const el = document.getElementById("cart-items");
+  if (state.cart.length === 0) { el.innerHTML = '<div class="empty">Корзина пуста</div>'; loadSlots(); return; }
+  let html = "", total = 0;
+  state.cart.forEach((item, idx) => {
+    total += item.line_total;
+    const ings = Object.values(item.recipe_snapshot.selections).flat()
+      .map(id => state.ingredients[id]?.image).filter(Boolean).join(" ");
+    const modeBadge = item.recipe_snapshot.mode === "CHILDREN" ? " 👶" : "";
+    html += `
+      <div class="order-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:1.5em;">${ings}${modeBadge}</div>
+            <div>Кастомная колбаса • ${item.requested_weight_g} г</div>
+            <div style="color:#666;font-size:0.9em;">${item.price_per_kg} ₽/кг</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700;color:#8B0000;font-size:1.2em;">${item.line_total} ₽</div>
+            <button class="btn btn-secondary" style="width:auto;padding:5px 10px;margin-top:5px;" onclick="removeFromCart(${idx})">Удалить</button>
+          </div>
+        </div>
+      </div>`;
+  });
+  html += `<div class="summary-row total" style="margin-top:15px;"><span>Итого:</span><span>${total} ₽</span></div>`;
+  el.innerHTML = html; loadSlots();
+}
+
+async function loadSlots() {
+  const orderType = state.cart.some(i => i.product_type === "CUSTOM") ? "CUSTOM" : "STANDARD";
+  const res = await fetch(`/api/slots?order_type=${orderType}`).then(r => r.json());
+  const el = document.getElementById("slots-container");
+  if (res.slots.length === 0) { el.innerHTML = '<div class="empty">Нет доступных слотов</div>'; return; }
+  el.innerHTML = res.slots.map(s => `
+    <div class="slot ${state.selectedSlot === s.id ? 'selected' : ''}" onclick="selectSlot('${s.id}')">
+      <div class="date">${formatDate(s.slot_date)}</div>
+      <div class="time">${s.time_from} — ${s.time_to}</div>
+      <div class="capacity">Свободно: ${s.available_capacity}</div>
+    </div>`).join("");
+}
+
+async function loadOrders() {
+  const res = await fetch("/api/orders").then(r => r.json());
+  state.orders = res.orders;
+  const el = document.getElementById("orders-list");
+  if (state.orders.length === 0) { el.innerHTML = '<div class="empty">Заказов пока нет</div>'; return; }
+  el.innerHTML = state.orders.slice().reverse().map(o => {
+    const itemsHtml = o.items.map(i => {
+      const ings = i.product_type === "CUSTOM"
+        ? Object.values(i.recipe_snapshot?.selections || {}).flat().map(id => state.ingredients[id]?.image).filter(Boolean).join(" ")
+        : "🌭";
+      return `<div>• ${ings} ${i.requested_weight_g}г ${i.actual_weight_g ? `(факт: ${i.actual_weight_g}г)` : ""}</div>`;
+    }).join("");
+    return `<div class="order-card">
+      <div class="order-header">
+        <div class="order-number">${o.order_number}</div>
+        <div class="status-badge status-${o.status}">${translateStatus(o.status)}</div>
+      </div>
+      <div style="font-size:0.9em;color:#666;">⚖️ ${o.total_weight_g} г • 💰 ${o.final_amount || o.total_amount} ₽</div>
+      <div style="margin-top:10px;">${itemsHtml}</div>
+    </div>`;
+  }).join("");
+}
+
+// ============================================
+// 🆕 ГЕНЕРАЦИЯ AI-ФОТО ПОД РЕЦЕПТ
+// ============================================
+let currentRecipeImageUrl = null;
+let currentRecipeHash = null;
+let isGeneratingRecipe = false;
+
+async function generateRecipeImage(regenerate = false) {
+  if (isGeneratingRecipe) return;
+  
+  // Проверка: выбрано ли мясо
+  const meatIds = state.selections["opt_meat"] || [];
+  if (meatIds.length === 0) {
+    alert("Сначала выберите мясо!");
+    return;
+  }
+  
+  // Проверка валидности рецепта
+  if (!state.validation?.valid) {
+    alert("Рецепт содержит ошибки. Исправьте их перед генерацией.");
+    return;
+  }
+  
+  isGeneratingRecipe = true;
+  const btn = document.getElementById("generate-recipe-btn");
+  const statusEl = document.getElementById("recipe-generation-status");
+  
+  btn.disabled = true;
+  btn.classList.add("generating");
+  btn.textContent = "⏳ Генерация...";
+  statusEl.className = "recipe-generation-status loading";
+  statusEl.innerHTML = `
+    🎨 AI создаёт уникальное фото вашей колбасы...<br>
+    <small>Это займёт 10-30 секунд</small>
+    <div class="recipe-progress"><div class="recipe-progress-fill"></div></div>
+  `;
+  
+  try {
+    const startTime = Date.now();
+    
+    const res = await fetch("/api/generate-recipe-image", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        selections: state.selections,
+        weight_g: state.weight,
+        regenerate: regenerate,
+      }),
+    });
+    
+    const data = await res.json();
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    
+    if (data.success) {
+      currentRecipeImageUrl = data.image_url;
+      currentRecipeHash = data.recipe_hash;
+      
+      // Показываем AI-изображение вместо canvas
+      showRecipeAIImage(data.image_url);
+      
+      const source = data.cached ? "из кэша" : "сгенерировано";
+      const sizeKb = Math.round(data.file_size / 1024);
+      
+      statusEl.className = "recipe-generation-status success";
+      statusEl.innerHTML = `✅ Фото ${source} за ${elapsed}с (${sizeKb} KB)`;
+      btn.textContent = "🔄 Обновить фото";
+      
+      console.log(`✅ Рецепт ${data.recipe_hash}: ${source} (${data.file_size} байт)`);
+      if (data.prompt) console.log(`📝 Промпт: ${data.prompt}`);
+    } else {
+      throw new Error(data.error || "Неизвестная ошибка");
+    }
+    } catch (e) {
+    console.error("❌ Ошибка генерации:", e);
+    statusEl.className = "recipe-generation-status error";
+    
+    // Дружелюбное сообщение об ошибке
+    if (e.message.includes("402") || e.message.includes("timeout") || e.message.includes("waiting")) {
+      statusEl.textContent = "⚠️ AI-сервис перегружен. Показываем Canvas-превью.";
+      // Автоматически возвращаем Canvas, если AI не сработал
+      setTimeout(() => hideRecipeAIImage(), 2000);
+    } else {
+      statusEl.textContent = `❌ Ошибка: ${e.message}`;
+    }
+    
+    btn.textContent = "📸 Сгенерировать фото рецепта";
+  } finally {
+    isGeneratingRecipe = false;
+    btn.disabled = false;
+    btn.classList.remove("generating");
+  }
+}
+
+function showRecipeAIImage(imageUrl) {
+  const canvas = document.getElementById("sausage-canvas");
+  const img = document.getElementById("recipe-ai-image");
+  
+  canvas.style.display = "none";
+  img.style.display = "block";
+  img.src = imageUrl + "?t=" + Date.now();
+  
+  let badge = document.querySelector(".recipe-ai-badge");
+  if (!badge) {
+    badge = document.createElement("div");
+    badge.className = "recipe-ai-badge";
+    badge.innerHTML = "📸 AI-фото рецепта";
+    document.getElementById("sausage-canvas-container").appendChild(badge);
+  }
+  
+  document.getElementById("render-info").textContent = 
+    `📸 AI-фото рецепта • ${currentRecipeHash}`;
+  
+  updateIngredientBadges();  // 🆕 Показываем значки поверх AI-фото
+}
+
+function hideRecipeAIImage() {
+  const canvas = document.getElementById("sausage-canvas");
+  const img = document.getElementById("recipe-ai-image");
+  const badge = document.querySelector(".recipe-ai-badge");
+  
+  canvas.style.display = "block";
+  img.style.display = "none";
+  if (badge) badge.remove();
+  
+  currentRecipeImageUrl = null;
+  currentRecipeHash = null;
+  
+  scheduleRender();
+  updateIngredientBadges();  // 🆕 Восстанавливаем значки
+}
+
+// Проверка: есть ли уже сгенерированное фото для текущего рецепта
+async function checkRecipeCache() {
+  const meatIds = state.selections["opt_meat"] || [];
+  if (meatIds.length === 0 || !state.validation?.valid) {
+    return;
+  }
+  
+  try {
+    // Вычисляем хэш на клиенте (такая же логика, как на сервере)
+    const normalized = {};
+    for (const optId of Object.keys(state.selections).sort()) {
+      normalized[optId] = [...state.selections[optId]].sort();
+    }
+    const dataStr = JSON.stringify({s: normalized, w: state.weight});
+    
+    // Простой хэш (для клиента — используем FNV-1a)
+    let hash = 0;
+    for (let i = 0; i < dataStr.length; i++) {
+      hash = ((hash << 5) - hash + dataStr.charCodeAt(i)) | 0;
+    }
+    const hashStr = Math.abs(hash).toString(16).padStart(12, '0').slice(0, 12);
+    
+    // Проверяем, есть ли файл на сервере
+    const testUrl = `/static/recipe_${hashStr}.jpg`;
+    const res = await fetch(testUrl, {method: 'HEAD'});
+    
+    if (res.ok) {
+      // Кэш найден — показываем
+      currentRecipeImageUrl = testUrl;
+      currentRecipeHash = hashStr;
+      showRecipeAIImage(testUrl);
+      
+      const statusEl = document.getElementById("recipe-generation-status");
+      statusEl.className = "recipe-generation-status success";
+      statusEl.textContent = "📦 Фото из кэша";
+      
+      const btn = document.getElementById("generate-recipe-btn");
+      btn.textContent = "🔄 Обновить фото";
+      
+      console.log(`📦 Рецепт ${hashStr} найден в кэше`);
+    }
+  } catch (e) {
+    // Игнорируем ошибки — просто нет кэша
+  }
+}
+
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ ПОСЛЕ ЗАГРУЗКИ DOM
+// ============================================
+document.addEventListener('DOMContentLoaded', async function() {
+  console.log('✅ DOM загружен, инициализируем приложение...');
+  
+  try {
+    const [ingRes, optRes] = await Promise.all([
+      fetch("/api/ingredients").then(r => r.json()),
+      fetch("/api/options").then(r => r.json()),
+    ]);
+    state.ingredients = ingRes;
+    state.options = optRes.sort((a, b) => a.step_order - b.step_order);
+    state.options.forEach(o => state.selections[o.id] = []);
+    
+    renderOptions();
+    renderCart();
+    loadOrders();
+    
+    await initializeAI();
+    
+    document.getElementById("weight-slider").oninput = (e) => {
+      state.weight = parseInt(e.target.value);
+      document.getElementById("weight-value").textContent = state.weight;
+      scheduleRender();
+      validate();
+    };
+    
+    document.getElementById("add-to-cart-btn").onclick = () => {
+      if (!state.validation?.valid) return;
+      state.cart.push({
+        item_id: crypto.randomUUID(),
+        product_type: "CUSTOM",
+        recipe_snapshot: {
+          selections: JSON.parse(JSON.stringify(state.selections)),
+          weight: state.weight,
+          mode: state.mode,
+        },
+        requested_weight_g: state.weight,
+        price_per_kg: state.validation.price.price_per_kg,
+        line_total: state.validation.price.retail,
+      });
+      renderCart();
+      alert("✅ Добавлено в корзину!");
+      switchTab("checkout");
+    };
+    
+    document.getElementById("place-order-btn").onclick = async () => {
+      if (state.cart.length === 0) { alert("Корзина пуста"); return; }
+      if (!state.selectedSlot) { alert("Выберите слот доставки"); return; }
+      const street = document.getElementById("addr-street").value;
+      const building = document.getElementById("addr-building").value;
+      if (!street || !building) { alert("Укажите адрес"); return; }
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          items: state.cart,
+          delivery_slot_id: state.selectedSlot,
+          delivery_address: {
+            street,
+            building,
+            apartment: document.getElementById("addr-apartment").value
+          },
+          customer_comment: document.getElementById("addr-comment").value,
+        }),
+      }).then(r => r.json());
+      if (!res.success) { alert("❌ Ошибка: " + res.error); return; }
+      alert(`✅ Заказ ${res.order.order_number} оформлен!`);
+      state.cart = [];
+      state.selectedSlot = null;
+      renderCart();
+      loadOrders();
+      switchTab("orders");
+    };
+    
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      btn.onclick = () => {
+        const newMode = btn.dataset.mode;
+        if (newMode === state.mode) return;
+        document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active", "children-active"));
+        btn.classList.add("active");
+        if (newMode === "CHILDREN") btn.classList.add("children-active");
+        state.mode = newMode;
+        if (newMode === "CHILDREN") {
+          const forbidden = new Set(Object.values(state.ingredients).filter(i => i.forbidden_for_children).map(i => i.id));
+          let removed = [];
+          for (const optId in state.selections) {
+            const before = state.selections[optId].length;
+            state.selections[optId] = state.selections[optId].filter(id => !forbidden.has(id));
+            if (state.selections[optId].length < before) {
+              const opt = state.options.find(o => o.id === optId);
+              removed.push(opt.name);
+            }
+          }
+          if (removed.length > 0) setTimeout(() => alert(`👶 В детском режиме удалены:\n• ${[...new Set(removed)].join("\n• ")}`), 100);
+        }
+        renderOptions();
+        scheduleRender();
+        validate();
+      };
+    });
+    
+    document.querySelectorAll(".render-mode-btn").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".render-mode-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const mode = btn.dataset.render;
+        if (renderer) renderer.renderMode = mode;
+        const info = document.getElementById("render-mode-info");
+        info.textContent = mode === "hybrid" ? "AI + реалистичные вкрапления Canvas" : "Полностью процедурный рендер";
+        scheduleRender();
+      };
+    });
+    
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.onclick = () => switchTab(tab.dataset.panel);
+    });
+
+    // Обработчик кнопки генерации AI-фото
+document.getElementById("generate-recipe-btn").onclick = () => {
+  const btn = document.getElementById("generate-recipe-btn");
+  // Если уже есть AI-фото — перегенерировать
+  const regenerate = currentRecipeImageUrl !== null;
+  generateRecipeImage(regenerate);
+};
+
+// При изменении рецепта — проверять кэш
+// (модифицируем существующую функцию validate)
+    
+    console.log('✅ Приложение полностью инициализировано');
+  } catch (e) {
+    console.error("Init error:", e);
+    alert("Ошибка инициализации: " + e.message);
+  }
+});
+
+async function generateRecipeImage(regenerate = false) {
+  if (isGeneratingRecipe) return;
+  
+  const meatIds = state.selections["opt_meat"] || [];
+  if (meatIds.length === 0) {
+    alert("Сначала выберите мясо!");
+    return;
+  }
+  
+  if (!state.validation?.valid) {
+    alert("Рецепт содержит ошибки. Исправьте их перед генерацией.");
+    return;
+  }
+  
+  isGeneratingRecipe = true;
+  const btn = document.getElementById("generate-recipe-btn");
+  const statusEl = document.getElementById("recipe-generation-status");
+  
+  btn.disabled = true;
+  btn.classList.add("generating");
+  btn.textContent = "⏳ AI генерирует фото...";
+  statusEl.className = "recipe-generation-status loading";
+  statusEl.innerHTML = `
+    🎨 AI добавляет вкрапления в базовое изображение...<br>
+    <small>Это займёт 10-30 секунд</small>
+    <div class="recipe-progress"><div class="recipe-progress-fill"></div></div>
+  `;
+  
+  try {
+    const startTime = Date.now();
+    
+    const res = await fetch("/api/generate-recipe-image", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        selections: state.selections,
+        weight_g: state.weight,
+        regenerate: regenerate,
+      }),
+    });
+    
+    const data = await res.json();
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    
+    if (data.success) {
+      currentRecipeImageUrl = data.image_url;
+      currentRecipeHash = data.recipe_hash;
+      
+      showRecipeAIImage(data.image_url);
+      
+      const source = data.cached ? "из кэша" : "сгенерировано";
+      const sizeKb = Math.round(data.file_size / 1024);
+      
+      statusEl.className = "recipe-generation-status success";
+      statusEl.innerHTML = `✅ Фото ${source} за ${elapsed}с (${sizeKb} KB)`;
+      btn.textContent = "🔄 Обновить фото";
+      
+      console.log(`✅ Рецепт ${data.recipe_hash}: ${source}`);
+      if (data.prompt) console.log(`📝 Prompt: ${data.prompt}`);
+      if (data.strength) console.log(`💪 Strength: ${data.strength}`);
+    } else {
+      throw new Error(data.error || "Неизвестная ошибка");
+    }
+  } catch (e) {
+    console.error("❌ Ошибка генерации:", e);
+    statusEl.className = "recipe-generation-status error";
+    statusEl.textContent = `❌ Ошибка: ${e.message}`;
+    btn.textContent = "Посмотреть срез";
+  } finally {
+    isGeneratingRecipe = false;
+    btn.disabled = false;
+    btn.classList.remove("generating");
+  }
+}
+// Кнопка сброса выбора ингредиентов
+document.getElementById("reset-selection-btn").onclick = () => {
+  // 1. Очищаем все выборы ингредиентов
+  for (const optId in state.selections) {
+    state.selections[optId] = [];
+  }
+  
+  // 2. Сбрасываем валидацию
+  state.validation = null;
+  
+  // 3. 🆕 СКРЫВАЕМ AI-ФОТО РЕЦЕПТА (если оно показано)
+  const canvas = document.getElementById("sausage-canvas");
+  const aiImage = document.getElementById("recipe-ai-image");
+  const aiBadge = document.querySelector(".recipe-ai-badge");
+  
+  if (aiImage && aiImage.style.display !== "none") {
+    // AI-фото показано — скрываем его и возвращаем canvas
+    aiImage.style.display = "none";
+    aiImage.src = "";
+    canvas.style.display = "block";
+    
+    // Удаляем бейдж "📸 AI-фото рецепта"
+    if (aiBadge) aiBadge.remove();
+    
+    console.log("🗑️ AI-фото рецепта скрыто");
+  }
+  
+  // 4. 🆕 Сбрасываем глобальные переменные AI-фото
+  if (typeof currentRecipeImageUrl !== "undefined") {
+    currentRecipeImageUrl = null;
+  }
+  if (typeof currentRecipeHash !== "undefined") {
+    currentRecipeHash = null;
+  }
+  
+  // 5. 🆕 Очищаем статус генерации рецепта
+  const statusEl = document.getElementById("recipe-generation-status");
+  if (statusEl) {
+    statusEl.textContent = "";
+    statusEl.className = "recipe-generation-status";
+  }
+  
+  // 6. 🆕 Возвращаем кнопку генерации в исходное состояние
+  const generateBtn = document.getElementById("generate-recipe-btn");
+  if (generateBtn) {
+    generateBtn.textContent = "📸 Сгенерировать фото рецепта";
+    generateBtn.disabled = false;
+    generateBtn.classList.remove("generating");
+  }
+  
+  // 7. 🆕 Скрываем HTML-оверлей со значками
+  const overlay = document.getElementById("ingredient-badges-overlay");
+  if (overlay) {
+    overlay.classList.remove("visible");
+    overlay.innerHTML = "";
+  }
+  
+  // 8. Обновляем интерфейс
+  renderOptions();
+  scheduleRender();
+  validate();
+  
+  // 9. Визуальная обратная связь
+  const btn = document.getElementById("reset-selection-btn");
+  btn.style.background = "#8B0000";
+  btn.textContent = "✓ Сброшено";
+  setTimeout(() => {
+    btn.style.background = "";
+    btn.textContent = "Сбросить выбор";
+  }, 800);
+  
+  console.log("✅ Сброс выполнен: ингредиенты, AI-фото, значки");
+};
+</script>
+</body>
+</html>
