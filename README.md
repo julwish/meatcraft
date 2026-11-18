@@ -20,7 +20,7 @@
 ## 📦 Установка
 
 ```bash
-git clone https://github.com/ВАШ_НИКНЕЙМ/meatcraft.git
+git clone https://github.com/julwish/meatcraft.git
 cd meatcraft
 pip install -r requirements.txt
 python app.py
